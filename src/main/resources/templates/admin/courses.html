@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Courses – Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background: #0d0d1a; color: white; }
+        .sidebar { background: #12122b; width: 250px; min-height: 100vh; position: fixed; padding: 2rem 1.5rem; }
+        .main-content { margin-left: 250px; padding: 2rem; }
+        .nav-link-custom { color: rgba(255,255,255,0.6); padding: 10px 15px; border-radius: 10px; margin-bottom: 5px; text-decoration: none; display: block; }
+        .nav-link-custom:hover { background: rgba(233,69,96,0.2); color: #e94560; }
+        .table-dark-custom { background: #1e1e3f; border-radius: 15px; overflow: hidden; }
+        .table { color: white; }
+        .table thead { background: #2d2d5f; }
+        .table td, .table th { border-color: #2d2d5f; padding: 12px 15px; vertical-align: middle; }
+    </style>
+</head>
+<body>
+<div class="sidebar">
+    <div class="fw-bold fs-5 mb-4" style="color:#e94560">⚙️ Admin Panel</div>
+    <a href="/admin/dashboard" class="nav-link-custom"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a>
+    <a href="/admin/courses" class="nav-link-custom" style="background:rgba(233,69,96,0.2);color:#e94560"><i class="fas fa-book me-2"></i>Courses</a>
+    <a href="/admin/lectures" class="nav-link-custom"><i class="fas fa-chalkboard-teacher me-2"></i>Lecturers</a>
+    <a href="/admin/departments" class="nav-link-custom"><i class="fas fa-building me-2"></i>Departments</a>
+    <a href="/admin/students" class="nav-link-custom"><i class="fas fa-users me-2"></i>Students</a>
+    <hr style="border-color:#333">
+    <a href="/logout" class="nav-link-custom text-danger"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
+</div>
+
+<div class="main-content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold mb-0">Course Management</h4>
+            <p class="text-white-50">Add, edit and remove courses</p>
+        </div>
+        <a href="/admin/courses/add" class="btn btn-danger"><i class="fas fa-plus me-2"></i>Add Course</a>
+    </div>
+
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+    <div class="table-dark-custom">
+        <table class="table mb-0">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Course Name</th>
+                <th>Code</th>
+                <th>Fee (LKR)</th>
+                <th>Hrs/Week</th>
+                <th>Dept</th>
+                <th>Enrollment Key</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="course, stat : ${courses}">
+                <td th:text="${stat.count}"></td>
+                <td class="fw-semibold" th:text="${course.courseName}"></td>
+                <td><span class="badge bg-secondary" th:text="${course.courseCode}"></span></td>
+                <td th:text="${course.courseFee}"></td>
+                <td th:text="${course.lectureHoursPerWeek}"></td>
+                <td th:text="${course.department != null ? course.department.deptName : 'N/A'}"></td>
+                <td><code class="text-warning" th:text="${course.enrollmentKey}"></code></td>
+                <td>
+                    <a th:href="@{/admin/courses/edit/{id}(id=${course.id})}" class="btn btn-sm btn-warning me-1">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a th:href="@{/admin/courses/delete/{id}(id=${course.id})}"
+                       onclick="return confirm('Delete this course?')"
+                       class="btn btn-sm btn-danger">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </td>
+            </tr>
+            <tr th:if="${courses.isEmpty()}">
+                <td colspan="8" class="text-center text-muted py-4">No courses yet. Add one!</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>
