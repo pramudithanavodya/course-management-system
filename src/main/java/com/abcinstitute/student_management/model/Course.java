@@ -1,3 +1,4 @@
+
 package com.abcinstitute.student_management.model;
 
 import jakarta.persistence.*;

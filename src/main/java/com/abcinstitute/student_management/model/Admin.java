@@ -1,3 +1,4 @@
+
 package com.abcinstitute.student_management.model;
 
 import jakarta.persistence.*;
@@ -37,5 +38,5 @@ public class Admin {
     public void setPassword(String password) { this.password = password; }
 
     public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-}
+    public void setEmail(String email) { this.email = email; }}
+

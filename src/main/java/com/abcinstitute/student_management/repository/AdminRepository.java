@@ -1,3 +1,4 @@
+
 package com.abcinstitute.student_management.repository;
 
 import com.abcinstitute.student_management.model.Admin;
@@ -9,4 +10,5 @@ import java.util.Optional;
 public interface AdminRepository extends JpaRepository<Admin, Long> {
     Optional<Admin> findByUsername(String username);
     Optional<Admin> findByUsernameAndPassword(String username, String password);
+
 }
