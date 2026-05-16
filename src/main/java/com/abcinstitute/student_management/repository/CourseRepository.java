@@ -1,13 +1,9 @@
 package com.abcinstitute.student_management.repository;
 
-import com.abcinstitute.student_management.model.Course;
+import com.abcinstitute.student_management.model.CourseHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import java.util.List;
-import java.util.Optional;
 
 @Repository
-public interface CourseRepository extends JpaRepository<Course, Long> {
-    Optional<Course> findByCourseCode(String courseCode);
-    List<Course> findByDepartmentId(Long departmentId);
+public interface CourseHistoryRepository extends JpaRepository<CourseHistory, Long> {
 }
