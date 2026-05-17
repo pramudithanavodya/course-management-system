@@ -1,3 +1,4 @@
+
 package com.abcinstitute.student_management.repository;
 
 import com.abcinstitute.student_management.model.Student;
@@ -10,4 +11,5 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
     Optional<Student> findByUsername(String username);
     Optional<Student> findByUsernameAndPassword(String username, String password);
     boolean existsByUsername(String username);
+
 }

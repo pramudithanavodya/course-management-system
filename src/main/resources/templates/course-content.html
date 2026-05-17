@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Course Content – ABC Institute</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+          theme: {
+            extend: {
+              colors: { crimson: '#e94560', navy: '#0f3460', mid: '#1a1a2e', deep: '#0d0b1a' },
+              fontFamily: { display: ['Syne','sans-serif'], body: ['DM Sans','sans-serif'] },
+            },
+          },
+        }
+    </script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { min-height: 100%; font-family: 'DM Sans', sans-serif; background: #0d0b1a; color: #fff; }
+
+        /* ══ Floating orbs ════════════════════════════════════ */
+        @keyframes floatUp {
+          0%   { transform: translateY(110vh) scale(0.4); opacity: 0; }
+          8%   { opacity: 0.45; }
+          92%  { opacity: 0.15; }
+          100% { transform: translateY(-8vh) scale(1.2); opacity: 0; }
+        }
+        .orb {
+          position: fixed; border-radius: 50%; pointer-events: none; z-index: 0;
+          animation: floatUp linear infinite;
+          background: radial-gradient(circle at 40% 40%, rgba(233,69,96,0.4), transparent 70%);
+        }
+
+        /* ══ Hero gradient bg ══════════════════════════════════ */
+        .hero-bg {
+          background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 60%, rgba(233,69,96,0.15) 100%);
+          border: 1px solid rgba(255,255,255,0.07);
+          position: relative; overflow: hidden;
+        }
+        /* moving radial sweep */
+        @keyframes heroSweep {
+          0%   { transform: translate(-30%, -30%) scale(1);   opacity: .25; }
+          50%  { transform: translate( 10%,  10%) scale(1.4); opacity: .4;  }
+          100% { transform: translate(-30%, -30%) scale(1);   opacity: .25; }
+        }
+        .hero-sweep {
+          position: absolute; width: 500px; height: 500px; border-radius: 50%;
+          background: radial-gradient(circle, rgba(233,69,96,0.25), transparent 65%);
+          animation: heroSweep 8s ease-in-out infinite; pointer-events: none;
+          top: -120px; right: -80px;
+        }
+        @keyframes heroSweep2 {
+          0%   { transform: translate(0,0)   scale(1);   opacity: .15; }
+          50%  { transform: translate(-20px, 20px) scale(1.3); opacity: .3; }
+          100% { transform: translate(0,0)   scale(1);   opacity: .15; }
+        }
+        .hero-sweep2 {
+          position: absolute; width: 300px; height: 300px; border-radius: 50%;
+          background: radial-gradient(circle, rgba(58,134,255,0.2), transparent 65%);
+          animation: heroSweep2 6s ease-in-out infinite; pointer-events: none;
+          bottom: -60px; left: -40px;
+        }
+
+        /* ══ Glass ═════════════════════════════════════════════ */
+        .glass {
+          background: rgba(255,255,255,0.04);
+          backdrop-filter: blur(20px);
+          border: 1px solid rgba(255,255,255,0.08);
+          transition: transform .35s ease, box-shadow .35s ease, border-color .35s ease;
+        }
+        .glass:hover {
+          transform: translateY(-3px);
+          border-color: rgba(233,69,96,0.25);
+          box-shadow: 0 12px 40px rgba(233,69,96,0.08);
+        }
+
+        /* ══ Course title ══════════════════════════════════════ */
+        @keyframes gradientShift {
+          0%,100% { background-position: 0%   50%; }
+          50%      { background-position: 100% 50%; }
+        }
+        .course-title {
+          font-family: 'Syne', sans-serif;
+          font-weight: 800;
+          font-size: clamp(1.6rem, 4vw, 2.5rem);
+          background: linear-gradient(90deg, #ffffff 0%, #ffb3c1 35%, #e94560 60%, #ffffff 100%);
+          background-size: 200% auto;
+          -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+          background-clip: text;
+          animation: gradientShift 4s ease infinite;
+          line-height: 1.15;
+        }
+
+        /* ══ Info badges ═══════════════════════════════════════ */
+        .info-pill {
+          display: inline-flex; align-items: center; gap: 8px;
+          background: rgba(255,255,255,0.1); backdrop-filter: blur(8px);
+          border: 1px solid rgba(255,255,255,0.15);
+          border-radius: 999px; padding: 7px 16px;
+          font-size: .8rem; color: rgba(255,255,255,0.8);
+          transition: background .2s, border-color .2s, transform .2s;
+        }
+        .info-pill:hover { background: rgba(233,69,96,0.15); border-color: rgba(233,69,96,0.3); transform: translateY(-2px); }
+        .info-pill i { color: #e94560; }
+
+        /* ══ Topic items ═══════════════════════════════════════ */
+        @keyframes slideRight {
+          from { opacity: 0; transform: translateX(-18px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        .topic-item {
+          display: flex; align-items: center; gap: 12px;
+          background: rgba(255,255,255,0.03);
+          border-left: 3px solid #e94560;
+          border-radius: 0 12px 12px 0;
+          padding: 13px 18px;
+          font-size: .875rem; color: rgba(255,255,255,0.75);
+          animation: slideRight .5s ease both;
+          transition: background .25s, border-color .25s, transform .25s;
+          cursor: default;
+        }
+        .topic-item:hover {
+          background: rgba(233,69,96,0.08);
+          border-color: #e94560;
+          transform: translateX(5px);
+          color: #fff;
+        }
+        .topic-item .check {
+          width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+          background: rgba(46,204,113,0.12); border: 1.5px solid rgba(46,204,113,0.3);
+          display: flex; align-items: center; justify-content: center;
+          font-size: .6rem; color: #2ecc71;
+          transition: background .25s, transform .25s;
+        }
+        .topic-item:hover .check { background: rgba(46,204,113,0.22); transform: scale(1.15) rotate(10deg); }
+
+        /* ══ Details row ═══════════════════════════════════════ */
+        .detail-row {
+          display: flex; justify-content: space-between; align-items: center;
+          padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.06);
+          font-size: .85rem;
+          transition: padding-left .2s;
+        }
+        .detail-row:last-child { border-bottom: none; }
+        .detail-row:hover { padding-left: 4px; }
+        .detail-row .lbl { color: rgba(255,255,255,0.35); font-size: .78rem; text-transform: uppercase; letter-spacing: .05em; font-family: 'Syne', sans-serif; }
+        .detail-row .val { font-weight: 700; font-family: 'Syne', sans-serif; color: #fff; }
+
+        /* ══ Trophy card ═══════════════════════════════════════ */
+        @keyframes trophyPulse {
+          0%,100% { box-shadow: 0 0 0   rgba(233,69,96,0);   }
+          50%      { box-shadow: 0 0 40px rgba(233,69,96,0.5); }
+        }
+        .trophy-card {
+          background: linear-gradient(135deg, #e94560, #c62a47);
+          border-radius: 20px; padding: 24px;
+          position: relative; overflow: hidden;
+          animation: trophyPulse 3s ease-in-out infinite;
+        }
+        .trophy-card::before {
+          content: '';
+          position: absolute; top: -30px; right: -30px;
+          width: 100px; height: 100px; border-radius: 50%;
+          background: rgba(255,255,255,0.1);
+        }
+        .trophy-card::after {
+          content: '';
+          position: absolute; bottom: -20px; left: 20px;
+          width: 60px; height: 60px; border-radius: 50%;
+          background: rgba(255,255,255,0.07);
+        }
+        @keyframes trophyBounce {
+          0%,100% { transform: translateY(0) rotate(0deg); }
+          25%      { transform: translateY(-6px) rotate(-5deg); }
+          75%      { transform: translateY(-3px) rotate(3deg); }
+        }
+        .trophy-icon { animation: trophyBounce 2.5s ease-in-out infinite; display: inline-block; }
+
+        /* ══ Back button ═══════════════════════════════════════ */
+        .btn-back {
+          display: inline-flex; align-items: center; gap: 8px;
+          color: rgba(255,255,255,0.45); font-size: .85rem;
+          text-decoration: none; border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 999px; padding: 8px 18px;
+          transition: color .2s, border-color .2s, background .2s, transform .2s;
+        }
+        .btn-back:hover { color: #fff; border-color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.05); transform: translateX(-3px); }
+
+        /* ══ Badge ═════════════════════════════════════════════ */
+        .code-badge {
+          background: rgba(233,69,96,0.15); color: #e94560;
+          border: 1px solid rgba(233,69,96,0.3);
+          border-radius: 8px; padding: 3px 11px;
+          font-size: .72rem; font-weight: 800;
+          font-family: 'Syne', sans-serif; letter-spacing: .06em;
+        }
+
+        /* ══ Section heading ═══════════════════════════════════ */
+        .sec-head { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+        .sec-bar   { width: 3px; height: 20px; border-radius: 99px; background: #e94560; }
+
+        /* ══ Staggered entrance ════════════════════════════════ */
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(26px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .anim { animation: fadeInUp .6s ease both; }
+        .d1{animation-delay:.05s;} .d2{animation-delay:.13s;} .d3{animation-delay:.22s;}
+        .d4{animation-delay:.32s;} .d5{animation-delay:.42s;} .d6{animation-delay:.52s;}
+
+        /* ══ Topic stagger delays ══════════════════════════════ */
+        .topic-item:nth-child(1){animation-delay:.3s;}
+        .topic-item:nth-child(2){animation-delay:.38s;}
+        .topic-item:nth-child(3){animation-delay:.46s;}
+        .topic-item:nth-child(4){animation-delay:.54s;}
+        .topic-item:nth-child(5){animation-delay:.62s;}
+        .topic-item:nth-child(6){animation-delay:.70s;}
+        .topic-item:nth-child(7){animation-delay:.78s;}
+        .topic-item:nth-child(8){animation-delay:.86s;}
+        .topic-item:nth-child(n+9){animation-delay:.94s;}
+
+        /* ══ Count chip ════════════════════════════════════════ */
+        .count-chip {
+          background: rgba(233,69,96,0.12); color: #e94560;
+          border: 1px solid rgba(233,69,96,0.25);
+          border-radius: 999px; padding: 2px 10px;
+          font-size: .7rem; font-weight: 700; font-family: 'Syne', sans-serif;
+        }
+
+        /* ══ Scrollbar ═════════════════════════════════════════ */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(233,69,96,0.3); border-radius: 99px; }
+
+        /* ══ Shimmer loader bar ════════════════════════════════ */
+        @keyframes progressShimmer {
+          0%   { transform: translateX(-100%); }
+          100% { transform: translateX(400%); }
+        }
+        .progress-bar-wrap {
+          height: 3px; background: rgba(255,255,255,0.06);
+          border-radius: 99px; overflow: hidden; margin-top: 8px;
+        }
+        .progress-bar-inner {
+          height: 100%; width: 25%; border-radius: 99px;
+          background: linear-gradient(90deg, transparent, #e94560, transparent);
+          animation: progressShimmer 1.8s ease infinite;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ══ Floating Orbs ══════════════════════════════════════════ -->
+<div class="orb" style="width:13px;height:13px;left:5%;animation-duration:17s;animation-delay:0s;"></div>
+<div class="orb" style="width:7px;height:7px;left:14%;animation-duration:23s;animation-delay:4s;opacity:.6"></div>
+<div class="orb" style="width:10px;height:10px;left:26%;animation-duration:13s;animation-delay:7s;"></div>
+<div class="orb" style="width:5px;height:5px;left:39%;animation-duration:20s;animation-delay:2s;opacity:.5"></div>
+<div class="orb" style="width:15px;height:15px;left:52%;animation-duration:10s;animation-delay:5s;"></div>
+<div class="orb" style="width:9px;height:9px;left:63%;animation-duration:18s;animation-delay:9s;"></div>
+<div class="orb" style="width:6px;height:6px;left:75%;animation-duration:14s;animation-delay:1s;opacity:.5"></div>
+<div class="orb" style="width:12px;height:12px;left:86%;animation-duration:21s;animation-delay:6s;"></div>
+<div class="orb" style="width:8px;height:8px;left:93%;animation-duration:16s;animation-delay:3s;"></div>
+<div class="orb" style="width:11px;height:11px;left:45%;animation-duration:25s;animation-delay:11s;opacity:.4"></div>
+<div class="orb" style="width:6px;height:6px;left:20%;animation-duration:19s;animation-delay:13s;opacity:.5"></div>
+<div class="orb" style="width:9px;height:9px;left:79%;animation-duration:12s;animation-delay:8s;"></div>
+
+<!-- ══ Page ══════════════════════════════════════════════════ -->
+<div class="relative z-10 min-h-screen px-4 md:px-10 py-10 max-w-6xl mx-auto">
+
+    <!-- Back + Institute label -->
+    <div class="flex items-center justify-between mb-8 anim d1">
+        <a href="/dashboard" class="btn-back">
+            <i class="fas fa-arrow-left text-xs"></i> Back to Dashboard
+        </a>
+        <p class="font-display font-extrabold text-base text-white/60 tracking-tight hidden md:block">
+            🎓 ABC <span style="color:#e94560">Institute</span>
+        </p>
+    </div>
+
+    <!-- ══ Hero Banner ══════════════════════════════════════════ -->
+    <div class="hero-bg rounded-3xl p-8 md:p-10 mb-8 anim d2">
+        <div class="hero-sweep"></div>
+        <div class="hero-sweep2"></div>
+
+        <div class="relative z-10">
+            <!-- Course code badge -->
+            <span class="code-badge" th:text="${course.courseCode}">CODE</span>
+
+            <!-- Course title with gradient shimmer -->
+            <h1 class="course-title mt-3 mb-5" th:text="${course.courseName}">Course Name</h1>
+
+            <!-- Info pills row -->
+            <div class="flex flex-wrap gap-3">
+        <span class="info-pill">
+          <i class="fas fa-clock"></i>
+          <span th:text="${course.lectureHoursPerWeek}">0</span> hrs/week
+        </span>
+                <span class="info-pill" th:if="${course.lecturer != null}">
+          <i class="fas fa-chalkboard-teacher"></i>
+          <span th:text="${course.lecturer.lecturerName}">Lecturer</span>
+        </span>
+                <span class="info-pill" th:if="${course.department != null}">
+          <i class="fas fa-building"></i>
+          <span th:text="${course.department.deptName}">Department</span>
+        </span>
+            </div>
+
+            <!-- shimmer progress bar decoration -->
+            <div class="progress-bar-wrap mt-6">
+                <div class="progress-bar-inner"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ Content Grid ══════════════════════════════════════════ -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        <!-- ── Topics (2/3 width) ────────────────────────────────── -->
+        <div class="md:col-span-2 anim d3">
+            <div class="glass rounded-2xl p-6 md:p-7">
+                <div class="sec-head">
+                    <div class="sec-bar"></div>
+                    <h2 class="font-display font-bold text-white text-lg">Course Content</h2>
+                    <!-- topic count chip – JS fills it -->
+                    <span class="count-chip" id="topicCount">0 topics</span>
+                </div>
+
+                <div class="flex flex-col gap-2" id="topicList" th:if="${course.courseContent != null}">
+                    <div class="topic-item" th:each="topic : ${course.courseContent.split(',')}">
+                        <div class="check"><i class="fas fa-check"></i></div>
+                        <span th:text="${topic.trim()}">Topic</span>
+                    </div>
+                </div>
+
+                <!-- Empty state -->
+                <div th:if="${course.courseContent == null}" class="text-center py-10 text-white/25">
+                    <i class="fas fa-book-open text-3xl mb-3" style="color:rgba(233,69,96,0.25)"></i>
+                    <p class="font-display text-sm">No content listed yet.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Sidebar (1/3 width) ───────────────────────────────── -->
+        <div class="flex flex-col gap-5">
+
+            <!-- Details card -->
+            <div class="glass rounded-2xl p-6 anim d4">
+                <div class="sec-head mb-3">
+                    <div class="sec-bar" style="background:#3a86ff"></div>
+                    <h3 class="font-display font-bold text-white text-sm uppercase tracking-widest">Course Details</h3>
+                </div>
+
+                <div class="detail-row">
+                    <span class="lbl">Course Fee</span>
+                    <span class="val" style="color:#e94560">LKR <span th:text="${course.courseFee}">0</span></span>
+                </div>
+                <div class="detail-row">
+                    <span class="lbl">Hours/Week</span>
+                    <span class="val" th:text="${course.lectureHoursPerWeek}">0</span>
+                </div>
+                <div class="detail-row" th:if="${course.department != null}">
+                    <span class="lbl">Department</span>
+                    <span class="val text-right text-sm" th:text="${course.department.deptName}">Dept</span>
+                </div>
+                <div class="detail-row" th:if="${course.lecturer != null}">
+                    <span class="lbl">Lecturer</span>
+                    <span class="val text-right text-sm" th:text="${course.lecturer.lecturerName}">Name</span>
+                </div>
+            </div>
+
+            <!-- Trophy / enrolled card -->
+            <div class="trophy-card anim d5">
+                <div class="relative z-10">
+                    <div class="trophy-icon text-4xl mb-3">🏆</div>
+                    <h3 class="font-display font-extrabold text-white text-lg leading-tight mb-1">You're Enrolled!</h3>
+                    <p class="text-white/60 text-xs leading-relaxed">
+                        Good luck with your studies,<br>
+                        <span class="text-white font-semibold" th:text="${username}">Student</span>! 🎉
+                    </p>
+                    <!-- Tiny progress indicator -->
+                    <div class="mt-4 flex items-center gap-2">
+                        <div class="flex-1 h-1.5 rounded-full" style="background:rgba(255,255,255,0.2)">
+                            <div class="h-full rounded-full" style="width:15%;background:rgba(255,255,255,0.8)"></div>
+                        </div>
+                        <span class="text-white/50 text-xs">15%</span>
+                    </div>
+                    <p class="text-white/30 text-xs mt-1">Keep going!</p>
+                </div>
+            </div>
+
+        </div><!-- end sidebar -->
+    </div><!-- end grid -->
+</div><!-- end page -->
+
+<script>
+    // Count topics and update the chip
+    window.addEventListener('DOMContentLoaded', () => {
+      const items = document.querySelectorAll('#topicList .topic-item');
+      const chip  = document.getElementById('topicCount');
+      if (chip) chip.textContent = items.length + (items.length === 1 ? ' topic' : ' topics');
+    });
+</script>
+
+</body>
+</html>

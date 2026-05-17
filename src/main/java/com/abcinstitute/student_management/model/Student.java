@@ -1,3 +1,4 @@
+
 package com.abcinstitute.student_management.model;
 
 import jakarta.persistence.*;
@@ -82,4 +83,5 @@ public class Student {
         return "Student{username='" + username + "', email='"
                 + email + "', fullName='" + fullName + "'}";
     }
+
 }
