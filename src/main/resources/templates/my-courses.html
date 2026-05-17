@@ -12,13 +12,13 @@
                 extend: {
                     colors: {
                         crimson: '#e94560',
-                        navy:    '#0f3460',
-                        mid:     '#1a1a2e',
-                        deep:    '#0d0b1a'
+                        navy: '#0f3460',
+                        mid: '#1a1a2e',
+                        deep: '#0d0b1a'
                     },
                     fontFamily: {
-                        display: ['Syne',    'sans-serif'],
-                        body:    ['DM Sans', 'sans-serif']
+                        display: ['Syne', 'sans-serif'],
+                        body: ['DM Sans', 'sans-serif']
                     }
                 }
             }
@@ -85,7 +85,7 @@
             transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
         }
         .glass:hover {
-            transform: translateY(-5px); border-color: rgba(233,69,96,.25);
+            transform: translateY(-4px); border-color: rgba(233,69,96,.25);
             box-shadow: 0 16px 40px rgba(233,69,96,.08), 0 0 0 1px rgba(233,69,96,.06);
         }
 
@@ -118,16 +118,48 @@
         }
         .btn-add-sm:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(233,69,96,.4); }
 
-        /* ══ Stat cards ═════════════════════════════════════════ */
-        .stat-r { background: linear-gradient(135deg, #e94560 0%, #c62a47 100%); }
-        .stat-b { background: linear-gradient(135deg, #3a86ff 0%, #1a6fd4 100%); }
-        .stat-g { background: linear-gradient(135deg, #2ecc71 0%, #16a854 100%); }
-
-        @keyframes pulseGlow {
-            0%,100% { box-shadow: 0 0 20px rgba(233,69,96,.25); }
-            50%     { box-shadow: 0 0 40px rgba(233,69,96,.50); }
+        /* ══ Stat cards – new glass style (NO colored backgrounds) ══ */
+        .stat-card {
+            background: rgba(255,255,255,.03);
+            backdrop-filter: blur(18px);
+            border: 1px solid rgba(255,255,255,.06);
+            border-radius: 20px;
+            padding: 20px 24px;
+            transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+            position: relative;
+            overflow: hidden;
         }
-        .glow-pulse { animation: pulseGlow 3s ease-in-out infinite; }
+        .stat-card::after {
+            content: '';
+            position: absolute; top: 0; right: 0;
+            width: 80px; height: 80px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(233,69,96,.15), transparent 70%);
+            transform: translate(20%, -20%);
+            pointer-events: none;
+        }
+        .stat-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(233,69,96,.2);
+            box-shadow: 0 20px 45px rgba(233,69,96,.12), 0 0 0 1px rgba(233,69,96,.06);
+        }
+        .stat-icon {
+            width: 44px; height: 44px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(233,69,96,.1);
+            color: #e94560; font-size: 1.2rem;
+            margin-bottom: 14px;
+            transition: background .3s;
+        }
+        .stat-card:hover .stat-icon { background: rgba(233,69,96,.2); }
+        .stat-value {
+            font-family: 'Syne', sans-serif; font-weight: 800; font-size: 2.2rem;
+            color: #fff; line-height: 1;
+        }
+        .stat-label {
+            font-size: .7rem; text-transform: uppercase; letter-spacing: .06em;
+            color: rgba(255,255,255,.45); font-weight: 600; margin-top: 6px;
+        }
 
         /* ══ Animations ═════════════════════════════════════════ */
         @keyframes fadeInUp {
@@ -145,7 +177,7 @@
         }
         .card-enter { animation: cardEntrance .5s ease both; }
 
-        /* staggered delays applied to direct children of .course-grid */
+        /* staggered delays for course cards inside .course-grid */
         .course-grid > .card-enter:nth-child(1)   { animation-delay: .30s; }
         .course-grid > .card-enter:nth-child(2)   { animation-delay: .36s; }
         .course-grid > .card-enter:nth-child(3)   { animation-delay: .42s; }
@@ -241,9 +273,9 @@
     <!-- ── Sidebar ──────────────────────────────────────────── -->
     <aside class="sidebar">
         <div class="mb-7 anim d1">
-            <p class="font-display font-extrabold text-xl text-white tracking-tight">
+            <a href="/dashboard" class="font-display font-extrabold text-xl text-white tracking-tight no-underline hover:opacity-80 transition-opacity">
                 🎓 ABC <span style="color:#e94560">Institute</span>
-            </p>
+            </a>
             <p class="text-white/25 text-xs mt-0.5">Student Portal</p>
         </div>
 
@@ -295,69 +327,29 @@
             </div>
         </div>
 
-        <!-- ── Stats strip ─────────────────────────────────────── -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
-
-            <div class="stat-r rounded-2xl p-5 anim d2 glow-pulse">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-white/65 text-xs font-display uppercase tracking-widest mb-1">Enrolled</p>
-                        <p class="text-5xl font-display font-extrabold text-white leading-none"
-                           th:text="${enrolledCourses != null ? enrolledCourses.size() : 0}">0</p>
-                        <p class="text-white/50 text-xs mt-2">Active courses</p>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl flex items-center justify-center"
-                         style="background:rgba(255,255,255,0.15)">
-                        <i class="fas fa-book text-white text-lg"></i>
-                    </div>
-                </div>
+        <!-- ── Stats strip – now using glass stat cards ──────── -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">
+            <!-- Enrolled courses count -->
+            <div class="stat-card anim d2">
+                <div class="stat-icon"><i class="fas fa-book"></i></div>
+                <div class="stat-value" th:text="${enrolledCourses != null ? enrolledCourses.size() : 0}">0</div>
+                <div class="stat-label">Enrolled Courses</div>
             </div>
-
-            <div class="stat-b rounded-2xl p-5 anim d3">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-white/65 text-xs font-display uppercase tracking-widest mb-1">In Progress</p>
-                        <p class="text-5xl font-display font-extrabold text-white leading-none"
-                           th:text="${enrolledCourses != null ? enrolledCourses.size() : 0}">0</p>
-                        <p class="text-white/50 text-xs mt-2">Courses active</p>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl flex items-center justify-center"
-                         style="background:rgba(255,255,255,0.15)">
-                        <i class="fas fa-spinner text-white text-lg"></i>
-                    </div>
-                </div>
+            <!-- In Progress (same as enrolled for now) -->
+            <div class="stat-card anim d3">
+                <div class="stat-icon"><i class="fas fa-spinner"></i></div>
+                <div class="stat-value" th:text="${enrolledCourses != null ? enrolledCourses.size() : 0}">0</div>
+                <div class="stat-label">Courses In Progress</div>
             </div>
-
-            <div class="stat-g rounded-2xl p-5 anim d4">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <p class="text-white/65 text-xs font-display uppercase tracking-widest mb-1">Status</p>
-                        <p class="text-5xl font-display font-extrabold text-white leading-none">Pro</p>
-                        <p class="text-white/50 text-xs mt-2">Account active</p>
-                    </div>
-                    <div class="w-12 h-12 rounded-xl flex items-center justify-center"
-                         style="background:rgba(255,255,255,0.15)">
-                        <i class="fas fa-shield-alt text-white text-lg"></i>
-                    </div>
-                </div>
+            <!-- Account Status -->
+            <div class="stat-card anim d4">
+                <div class="stat-icon"><i class="fas fa-shield-alt"></i></div>
+                <div class="stat-value">Pro</div>
+                <div class="stat-label">Account Status</div>
             </div>
         </div>
 
-        <!-- ── Enrolled Courses ─────────────────────────────────── -->
-        <!--
-            ╔══════════════════════════════════════════════════════╗
-            ║  BUGS FIXED                                          ║
-            ║  1. course.progress removed — that field does NOT    ║
-            ║     exist on the Course entity. Thymeleaf threw a    ║
-            ║     PropertyAccessException on every card, killing   ║
-            ║     the th:each loop after the first iteration.      ║
-            ║     Result: only 1 card rendered, "View Content"     ║
-            ║     button was never reached, page felt broken.      ║
-            ║  2. th:each is now a direct child of .course-grid    ║
-            ║     so nth-child CSS stagger works correctly.        ║
-            ║  3. Null-safe guard on enrolledCourses everywhere.   ║
-            ╚══════════════════════════════════════════════════════╝
-        -->
+        <!-- ── Enrolled Courses (only if list not empty) ─────── -->
         <div th:if="${enrolledCourses != null and !enrolledCourses.isEmpty()}" class="mb-4 anim d5">
             <div class="sec-head mb-5">
                 <div class="sec-bar" style="background:#2ecc71"></div>
@@ -365,13 +357,12 @@
                 <span class="badge-enr" th:text="${enrolledCourses.size()}">0</span>
             </div>
 
-            <!-- Direct children of .course-grid are the iterated cards -->
             <div class="course-grid grid grid-cols-1 md:grid-cols-2 gap-5">
 
                 <div th:each="course : ${enrolledCourses}"
                      class="glass rounded-2xl p-5 card-enter flex flex-col">
 
-                    <!-- Header: code + name | green Enrolled badge -->
+                    <!-- Header -->
                     <div class="flex justify-between items-start mb-3">
                         <div>
                             <span class="badge-code mb-2 inline-block"
@@ -388,10 +379,7 @@
                         Course content description...
                     </p>
 
-                    <!-- Progress bar — shows 0% safely (no .progress field on entity).
-                         When you add an int/double progress field to Course, replace the
-                         hardcoded style with:
-                         th:style="'width:' + ${course.progress} + '%'"              -->
+                    <!-- Progress bar (placeholder 0%, replace with real data later) -->
                     <div>
                         <div class="flex justify-between text-xs mb-1">
                             <span class="text-white/35">Progress</span>
@@ -402,15 +390,12 @@
                         </div>
                     </div>
 
-                    <!-- Footer: hrs/week + View Content button -->
+                    <!-- Footer -->
                     <div class="flex justify-between items-center mt-4 pt-3 border-t border-white/5">
                         <span class="text-white/40 text-xs flex items-center gap-1.5">
                             <i class="fas fa-clock" style="color:#e94560"></i>
                             <span th:text="${course.lectureHoursPerWeek}">0</span> hrs/week
                         </span>
-                        <!-- FIX: this button was always present in the template but
-                             was never rendered because the crash above stopped the loop.
-                             Now fully visible and functional. -->
                         <a th:href="@{/course-content/{id}(id=${course.id})}" class="btn-add-sm">
                             View Content <i class="fas fa-arrow-right text-[10px]"></i>
                         </a>
@@ -441,8 +426,7 @@
 </div>
 
 <script>
-    // Animate progress fills to their target widths on load.
-    // Currently all 0% — wire real values once Course entity has a progress field.
+    // Animate progress fills on load (currently all 0%)
     document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('.progress-fill').forEach(function (bar) {
             var target = bar.dataset.width || '0';
