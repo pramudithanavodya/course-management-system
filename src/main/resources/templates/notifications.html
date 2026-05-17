@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Notifications – ABC Institute</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { crimson: '#e94560', navy: '#0f3460', mid: '#1a1a2e', deep: '#0d0b1a' },
+                    fontFamily: { display: ['Syne','sans-serif'], body: ['DM Sans','sans-serif'] },
+                }
+            }
+        }
+    </script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { min-height: 100%; font-family: 'DM Sans', sans-serif; background: #0d0b1a; color: #fff; }
+
+        /* ══ Floating Orbs ══════════════════════════════════════ */
+        @keyframes floatUp {
+          0%   { transform: translateY(110vh) scale(0.4); opacity: 0; }
+          8%   { opacity: 0.45; }
+          92%  { opacity: 0.12; }
+          100% { transform: translateY(-8vh) scale(1.2); opacity: 0; }
+        }
+        .orb {
+          position: fixed; border-radius: 50%; pointer-events: none; z-index: 0;
+          animation: floatUp linear infinite;
+          background: radial-gradient(circle at 40% 40%, rgba(233,69,96,0.4), transparent 70%);
+        }
+
+        /* ══ Entrance animations ════════════════════════════════ */
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(28px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInLeft {
+          from { opacity: 0; transform: translateX(-28px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        .anim     { animation: fadeInUp .6s ease both; }
+        .anim-l   { animation: fadeInLeft .5s ease both; }
+        .d1{animation-delay:.04s;} .d2{animation-delay:.1s;} .d3{animation-delay:.18s;}
+        .d4{animation-delay:.26s;} .d5{animation-delay:.34s;} .d6{animation-delay:.42s;}
+
+        /* ══ Card stagger ═══════════════════════════════════════ */
+        .notif-card { animation: fadeInLeft .5s ease both; }
+        .notif-card:nth-child(1) { animation-delay: .18s; }
+        .notif-card:nth-child(2) { animation-delay: .24s; }
+        .notif-card:nth-child(3) { animation-delay: .30s; }
+        .notif-card:nth-child(4) { animation-delay: .36s; }
+        .notif-card:nth-child(5) { animation-delay: .42s; }
+        .notif-card:nth-child(6) { animation-delay: .48s; }
+        .notif-card:nth-child(7) { animation-delay: .54s; }
+        .notif-card:nth-child(n+8) { animation-delay: .60s; }
+
+        /* ══ Back button ════════════════════════════════════════ */
+        .btn-back {
+          display: inline-flex; align-items: center; gap: 8px;
+          color: rgba(255,255,255,0.45); font-size: .85rem; text-decoration: none;
+          border: 1px solid rgba(255,255,255,0.1); border-radius: 999px; padding: 8px 18px;
+          transition: color .2s, border-color .2s, background .2s, transform .2s;
+        }
+        .btn-back:hover { color: #fff; border-color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.05); transform: translateX(-3px); }
+
+        /* ══ Hero band ══════════════════════════════════════════ */
+        .hero-band {
+          background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 60%, rgba(233,69,96,0.12) 100%);
+          border: 1px solid rgba(255,255,255,0.07);
+          border-radius: 24px;
+          padding: 32px 36px;
+          position: relative; overflow: hidden;
+          margin-bottom: 32px;
+        }
+        @keyframes sweep {
+          0%   { transform: translate(-30%,-30%) scale(1);   opacity:.2; }
+          50%  { transform: translate( 10%, 10%) scale(1.4); opacity:.35; }
+          100% { transform: translate(-30%,-30%) scale(1);   opacity:.2; }
+        }
+        .hero-sweep {
+          position: absolute; width: 440px; height: 440px; border-radius: 50%; pointer-events: none;
+          background: radial-gradient(circle, rgba(233,69,96,0.22), transparent 65%);
+          animation: sweep 8s ease-in-out infinite;
+          top: -160px; right: -60px;
+        }
+
+        /* ══ Stats pill row ═════════════════════════════════════ */
+        .stat-pill {
+          display: inline-flex; align-items: center; gap: 8px;
+          background: rgba(255,255,255,0.06); backdrop-filter: blur(8px);
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 999px; padding: 8px 18px;
+          font-family: 'Syne', sans-serif; font-size: .78rem; color: rgba(255,255,255,0.7);
+        }
+        .stat-pill.new { background: rgba(233,69,96,0.12); border-color: rgba(233,69,96,0.3); color: #e94560; }
+
+        /* ══ Notification card ══════════════════════════════════ */
+        .notif-card {
+          background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(255,255,255,0.07);
+          border-radius: 18px;
+          padding: 18px 20px;
+          display: flex; align-items: flex-start; gap: 16px;
+          transition: background .3s, border-color .3s, transform .3s, box-shadow .3s;
+          cursor: default;
+          position: relative;
+        }
+        .notif-card:hover {
+          background: rgba(255,255,255,0.055);
+          border-color: rgba(233,69,96,0.22);
+          transform: translateX(5px);
+          box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+        }
+        .notif-card.unread { border-left: 3px solid #e94560; }
+        .notif-card.unread::after {
+          content: '';
+          position: absolute; top: 18px; right: 18px;
+          width: 8px; height: 8px; border-radius: 50%;
+          background: #e94560;
+          box-shadow: 0 0 8px rgba(233,69,96,0.7);
+        }
+
+        /* ══ Icon bubble ════════════════════════════════════════ */
+        .icon-bubble {
+          width: 46px; height: 46px; border-radius: 14px; flex-shrink: 0;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 1.1rem;
+          transition: transform .3s;
+        }
+        .notif-card:hover .icon-bubble { transform: scale(1.1) rotate(-4deg); }
+
+        /* ── existing types ── */
+        .icon-LOGIN        { background: rgba(58,134,255,0.15);  border: 1px solid rgba(58,134,255,0.25); }
+        .icon-ENROLLED     { background: rgba(46,204,113,0.12);  border: 1px solid rgba(46,204,113,0.25); }
+        .icon-UNENROLLED   { background: rgba(255,159,67,0.12);  border: 1px solid rgba(255,159,67,0.25); }
+        .icon-WELCOME      { background: rgba(233,69,96,0.12);   border: 1px solid rgba(233,69,96,0.25);  }
+
+        /* ── NEW admin broadcast types ── */
+        .icon-NEW_COURSE    { background: rgba(156,39,176,0.12);  border: 1px solid rgba(156,39,176,0.3);  }
+        .icon-COURSE_REMOVED{ background: rgba(244,67,54,0.12);   border: 1px solid rgba(244,67,54,0.3);   }
+
+        /* ══ Notif body text ════════════════════════════════════ */
+        .notif-msg { font-size: .875rem; color: rgba(255,255,255,0.8); line-height: 1.55; }
+        .notif-msg strong { color: #fff; font-weight: 700; }
+        .notif-time {
+          font-family: 'Syne', sans-serif; font-size: .7rem;
+          color: rgba(255,255,255,0.3); margin-top: 5px;
+          display: flex; align-items: center; gap: 5px;
+        }
+
+        /* ══ Type badge ═════════════════════════════════════════ */
+        .type-badge {
+          font-family: 'Syne', sans-serif; font-size: .62rem; font-weight: 800;
+          letter-spacing: .07em; border-radius: 6px; padding: 2px 8px; flex-shrink: 0;
+        }
+        /* ── existing ── */
+        .badge-LOGIN        { background: rgba(58,134,255,0.15);  color: #3a86ff; }
+        .badge-ENROLLED     { background: rgba(46,204,113,0.15);  color: #2ecc71; }
+        .badge-UNENROLLED   { background: rgba(255,159,67,0.15);  color: #ff9f43; }
+        .badge-WELCOME      { background: rgba(233,69,96,0.15);   color: #e94560; }
+
+        /* ── NEW ── */
+        .badge-NEW_COURSE     { background: rgba(156,39,176,0.15);  color: #ce93d8; }
+        .badge-COURSE_REMOVED { background: rgba(244,67,54,0.15);   color: #ef9a9a; }
+
+        /* ══ Section divider label ══════════════════════════════ */
+        .day-label {
+          font-family: 'Syne', sans-serif; font-size: .68rem; font-weight: 700;
+          color: rgba(255,255,255,0.25); text-transform: uppercase; letter-spacing: .1em;
+          display: flex; align-items: center; gap: 10px; margin: 20px 0 10px;
+        }
+        .day-label::before,.day-label::after {
+          content:''; flex:1; height:1px; background: rgba(255,255,255,0.07);
+        }
+
+        /* ══ Empty state ════════════════════════════════════════ */
+        @keyframes emptyFloat {
+          0%,100% { transform: translateY(0); }
+          50%      { transform: translateY(-10px); }
+        }
+        .empty-icon { animation: emptyFloat 3s ease-in-out infinite; display: inline-block; }
+
+        /* ══ Scrollbar ══════════════════════════════════════════ */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(233,69,96,0.3); border-radius: 99px; }
+
+        /* ══ Shimmer progress bar ═══════════════════════════════ */
+        @keyframes shimmer {
+          0%   { transform: translateX(-100%); }
+          100% { transform: translateX(400%); }
+        }
+        .shimmer-bar {
+          height: 2px; background: rgba(255,255,255,0.05);
+          border-radius: 99px; overflow: hidden; margin-top: 6px;
+        }
+        .shimmer-bar-inner {
+          height: 100%; width: 25%; border-radius: 99px;
+          background: linear-gradient(90deg, transparent, rgba(233,69,96,0.6), transparent);
+          animation: shimmer 2s ease infinite;
+        }
+
+        /* ══ Mark-read button ═══════════════════════════════════ */
+        .btn-markread {
+          display: inline-flex; align-items: center; gap: 6px;
+          font-family: 'Syne', sans-serif; font-size: .75rem; font-weight: 700;
+          color: rgba(255,255,255,0.35); cursor: pointer;
+          border: 1px solid rgba(255,255,255,0.1); border-radius: 999px;
+          padding: 6px 14px; text-decoration: none;
+          transition: color .2s, border-color .2s, background .2s;
+          background: none;
+        }
+        .btn-markread:hover { color: #2ecc71; border-color: rgba(46,204,113,0.35); background: rgba(46,204,113,0.06); }
+
+        /* ══ Page title gradient ════════════════════════════════ */
+        @keyframes gradShift {
+          0%,100% { background-position: 0% 50%; }
+          50%      { background-position: 100% 50%; }
+        }
+        .page-title {
+          font-family: 'Syne', sans-serif; font-weight: 800;
+          font-size: clamp(1.6rem, 4vw, 2.2rem);
+          background: linear-gradient(90deg, #fff 0%, #ffb3c1 40%, #e94560 70%, #fff 100%);
+          background-size: 200% auto;
+          -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+          background-clip: text;
+          animation: gradShift 4s ease infinite;
+        }
+
+        /* ══ Tip card ═══════════════════════════════════════════ */
+        .tip-card {
+          background: linear-gradient(135deg, rgba(58,134,255,0.08), rgba(233,69,96,0.06));
+          border: 1px solid rgba(58,134,255,0.15);
+          border-radius: 18px; padding: 20px 22px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ══ Floating Orbs ══════════════════════════════════════════ -->
+<div class="orb" style="width:12px;height:12px;left:6%;animation-duration:18s;animation-delay:0s;"></div>
+<div class="orb" style="width:7px;height:7px;left:18%;animation-duration:24s;animation-delay:5s;opacity:.55"></div>
+<div class="orb" style="width:9px;height:9px;left:31%;animation-duration:14s;animation-delay:8s;"></div>
+<div class="orb" style="width:5px;height:5px;left:47%;animation-duration:20s;animation-delay:2s;opacity:.45"></div>
+<div class="orb" style="width:14px;height:14px;left:60%;animation-duration:11s;animation-delay:6s;"></div>
+<div class="orb" style="width:8px;height:8px;left:73%;animation-duration:17s;animation-delay:10s;"></div>
+<div class="orb" style="width:6px;height:6px;left:84%;animation-duration:22s;animation-delay:3s;opacity:.5"></div>
+<div class="orb" style="width:10px;height:10px;left:93%;animation-duration:15s;animation-delay:7s;"></div>
+
+<!-- ══ Page ══════════════════════════════════════════════════ -->
+<div class="relative z-10 min-h-screen px-4 md:px-10 py-10 max-w-4xl mx-auto">
+
+    <!-- ── Top bar ────────────────────────────────────────────── -->
+    <div class="flex items-center justify-between mb-8 anim d1">
+        <a href="/dashboard" class="btn-back">
+            <i class="fas fa-arrow-left text-xs"></i> Back to Dashboard
+        </a>
+        <p class="font-display font-extrabold text-sm text-white/50 tracking-tight hidden md:block">
+            🎓 ABC <span style="color:#e94560">Institute</span>
+        </p>
+    </div>
+
+    <!-- ── Hero band ──────────────────────────────────────────── -->
+    <div class="hero-band anim d2">
+        <div class="hero-sweep"></div>
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+            <div>
+                <div class="flex items-center gap-3 mb-2">
+                    <div style="
+                        width:40px;height:40px;border-radius:12px;
+                        background:rgba(233,69,96,0.15);border:1px solid rgba(233,69,96,0.3);
+                        display:flex;align-items:center;justify-content:center;font-size:1.1rem;">
+                        🔔
+                    </div>
+                    <h1 class="page-title">Notifications</h1>
+                </div>
+                <p class="text-white/45 text-sm mt-1">
+                    Everything that's happened on your account, in one place.
+                </p>
+                <div class="shimmer-bar mt-3"><div class="shimmer-bar-inner"></div></div>
+            </div>
+
+            <!-- Stats pills -->
+            <div class="flex flex-wrap gap-2" id="statRow">
+                <span class="stat-pill">
+                    <i class="fas fa-list text-white/40" style="font-size:.7rem"></i>
+                    <span id="totalCount">0</span> total
+                </span>
+                <span class="stat-pill new" id="unreadPill">
+                    <i class="fas fa-circle" style="font-size:.45rem;color:#e94560"></i>
+                    <span id="unreadCount">0</span> new
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Toolbar ────────────────────────────────────────────── -->
+    <div class="flex items-center justify-between mb-4 anim d3">
+        <p class="text-white/30 text-xs font-display uppercase tracking-widest">
+            Activity Feed
+        </p>
+        <a href="/dashboard" class="btn-markread">
+            <i class="fas fa-check-double text-xs"></i> All caught up
+        </a>
+    </div>
+
+    <!-- ── Notification list ──────────────────────────────────── -->
+    <div id="notifList" class="flex flex-col gap-3">
+
+        <!-- ░░ Has notifications ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ -->
+        <div th:if="${notifications != null and !notifications.empty}">
+
+            <div th:each="notif, iterStat : ${notifications}">
+
+                <!-- Day label on first item -->
+                <div class="day-label" th:if="${iterStat.index == 0}">
+                    Recent Activity
+                </div>
+
+                <!-- Notification card -->
+                <div class="notif-card mb-3"
+                     th:classappend="${!notif.read} ? 'unread' : ''">
+
+                    <!-- Icon bubble — now handles all 6 types -->
+                    <div class="icon-bubble"
+                         th:classappend="'icon-' + ${notif.type}">
+                        <span th:switch="${notif.type}">
+                            <span th:case="'LOGIN'">🔑</span>
+                            <span th:case="'ENROLLED'">📚</span>
+                            <span th:case="'UNENROLLED'">🚪</span>
+                            <span th:case="'WELCOME'">🎉</span>
+                            <span th:case="'NEW_COURSE'">🆕</span>
+                            <span th:case="'COURSE_REMOVED'">🗑️</span>
+                            <span th:case="*">📣</span>
+                        </span>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-start justify-between gap-2 mb-1">
+                            <!-- Type badge — now handles all 6 types -->
+                            <span class="type-badge"
+                                  th:classappend="'badge-' + ${notif.type}"
+                                  th:text="${notif.type}">TYPE</span>
+                        </div>
+
+                        <!-- Message (supports HTML tags like <strong>) -->
+                        <p class="notif-msg" th:utext="${notif.message}">Message here.</p>
+
+                        <!-- Timestamp -->
+                        <div class="notif-time">
+                            <i class="fas fa-clock" style="font-size:.6rem;opacity:.5"></i>
+                            <span th:if="${notif.createdAt != null}"
+                                  th:text="${#temporals.format(notif.createdAt, 'MMM dd, yyyy  HH:mm')}">
+                                Jan 01, 2025
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ░░ Empty state ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ -->
+        <div th:if="${notifications == null or notifications.empty}"
+             class="text-center py-20 anim d4">
+
+            <div class="empty-icon text-6xl mb-5">🔕</div>
+
+            <h2 class="font-display font-extrabold text-white/60 text-xl mb-2">
+                All quiet here!
+            </h2>
+            <p class="text-white/30 text-sm max-w-xs mx-auto leading-relaxed">
+                You have no notifications yet. Enroll in a course or log in again to see your activity show up here.
+            </p>
+
+            <a href="/dashboard"
+               class="inline-flex items-center gap-2 mt-8 px-6 py-3 rounded-2xl font-display font-bold text-sm text-white"
+               style="background:linear-gradient(135deg,#e94560,#c62a47);box-shadow:0 6px 24px rgba(233,69,96,0.35);">
+                <i class="fas fa-compass text-xs"></i>
+                Explore Courses
+            </a>
+        </div>
+
+    </div><!-- end notifList -->
+
+    <!-- ── Tip card ────────────────────────────────────────────── -->
+    <div th:if="${notifications != null and !notifications.empty}"
+         class="tip-card mt-8 anim d5">
+        <div class="flex items-center gap-3">
+            <div style="
+                width:36px;height:36px;border-radius:10px;flex-shrink:0;
+                background:rgba(58,134,255,0.12);border:1px solid rgba(58,134,255,0.2);
+                display:flex;align-items:center;justify-content:center;font-size:.9rem;">
+                💡
+            </div>
+            <div>
+                <p class="font-display font-bold text-white text-xs mb-0.5">Pro tip</p>
+                <p class="text-white/35 text-xs leading-relaxed">
+                    Notifications are marked as read automatically when you open this page.
+                    Course announcements from your institute appear here too — so you're always in the loop.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Navigation shortcuts ────────────────────────────────── -->
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-6 anim d6">
+
+        <a href="/my-courses"
+           class="flex items-center gap-3 p-4 rounded-2xl transition-all duration-200 group"
+           style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);"
+           onmouseover="this.style.background='rgba(46,204,113,0.06)';this.style.borderColor='rgba(46,204,113,0.2)'"
+           onmouseout="this.style.background='rgba(255,255,255,0.03)';this.style.borderColor='rgba(255,255,255,0.07)'">
+            <div style="
+                width:34px;height:34px;border-radius:10px;flex-shrink:0;
+                background:rgba(46,204,113,0.1);border:1px solid rgba(46,204,113,0.2);
+                display:flex;align-items:center;justify-content:center;">
+                <i class="fas fa-layer-group" style="color:#2ecc71;font-size:.75rem"></i>
+            </div>
+            <div>
+                <p class="font-display font-bold text-white text-xs">My Courses</p>
+                <p class="text-white/30 text-xs">View enrolled</p>
+            </div>
+        </a>
+
+        <a href="/settings"
+           class="flex items-center gap-3 p-4 rounded-2xl transition-all duration-200"
+           style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);"
+           onmouseover="this.style.background='rgba(58,134,255,0.06)';this.style.borderColor='rgba(58,134,255,0.2)'"
+           onmouseout="this.style.background='rgba(255,255,255,0.03)';this.style.borderColor='rgba(255,255,255,0.07)'">
+            <div style="
+                width:34px;height:34px;border-radius:10px;flex-shrink:0;
+                background:rgba(58,134,255,0.1);border:1px solid rgba(58,134,255,0.2);
+                display:flex;align-items:center;justify-content:center;">
+                <i class="fas fa-cog" style="color:#3a86ff;font-size:.75rem"></i>
+            </div>
+            <div>
+                <p class="font-display font-bold text-white text-xs">Settings</p>
+                <p class="text-white/30 text-xs">Edit profile</p>
+            </div>
+        </a>
+
+        <a href="/dashboard"
+           class="flex items-center gap-3 p-4 rounded-2xl transition-all duration-200"
+           style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);"
+           onmouseover="this.style.background='rgba(233,69,96,0.06)';this.style.borderColor='rgba(233,69,96,0.2)'"
+           onmouseout="this.style.background='rgba(255,255,255,0.03)';this.style.borderColor='rgba(255,255,255,0.07)'">
+            <div style="
+                width:34px;height:34px;border-radius:10px;flex-shrink:0;
+                background:rgba(233,69,96,0.1);border:1px solid rgba(233,69,96,0.2);
+                display:flex;align-items:center;justify-content:center;">
+                <i class="fas fa-home" style="color:#e94560;font-size:.75rem"></i>
+            </div>
+            <div>
+                <p class="font-display font-bold text-white text-xs">Dashboard</p>
+                <p class="text-white/30 text-xs">Browse all</p>
+            </div>
+        </a>
+    </div>
+
+</div><!-- end page -->
+
+<script>
+    window.addEventListener('DOMContentLoaded', () => {
+        const cards    = document.querySelectorAll('.notif-card');
+        const unread   = document.querySelectorAll('.notif-card.unread');
+
+        const totalEl  = document.getElementById('totalCount');
+        const unreadEl = document.getElementById('unreadCount');
+        const pill     = document.getElementById('unreadPill');
+
+        if (totalEl)  totalEl.textContent  = cards.length;
+        if (unreadEl) unreadEl.textContent = unread.length;
+
+        if (pill && unread.length === 0) {
+            pill.style.display = 'none';
+        }
+    });
+</script>
+
+</body>
+</html>
