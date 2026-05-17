@@ -60,6 +60,7 @@ public class AdminController {
     public String listCourses(HttpSession session, Model model) {
         if (!isAdmin(session)) return "redirect:/admin-login";
         model.addAttribute("courses", courseService.getAllCourses());
+        addCommonAttributes(session, model);
         return "admin/courses";
     }
 
@@ -69,6 +70,7 @@ public class AdminController {
         model.addAttribute("course", new Course());
         model.addAttribute("departments", departmentRepository.findAll());
         model.addAttribute("lecturers", lectureRepository.findAll());
+        addCommonAttributes(session, model);
         return "admin/add-course";
     }
 
@@ -94,6 +96,7 @@ public class AdminController {
         model.addAttribute("course", course.get());
         model.addAttribute("departments", departmentRepository.findAll());
         model.addAttribute("lecturers", lectureRepository.findAll());
+        addCommonAttributes(session, model);
         return "admin/edit-course";
     }
 
@@ -117,6 +120,7 @@ public class AdminController {
         courseService.deleteCourse(id);
         return "redirect:/admin/courses";
     }
+
 
     // ─────────────── LECTURERS ───────────────
     @GetMapping("/lectures")
