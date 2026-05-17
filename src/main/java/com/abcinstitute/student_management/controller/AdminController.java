@@ -3,6 +3,7 @@ package com.abcinstitute.student_management.controller;
 
 import com.abcinstitute.student_management.model.*;
 import com.abcinstitute.student_management.repository.*;
+import com.abcinstitute.student_management.service.AdminService;
 import com.abcinstitute.student_management.service.CourseService;
 import com.abcinstitute.student_management.service.StudentService;
 import jakarta.servlet.http.HttpSession;
@@ -21,6 +22,7 @@ public class AdminController {
 
     @Autowired private CourseService courseService;
     @Autowired private StudentService studentService;
+    @Autowired private AdminService adminService;
     @Autowired private DepartmentRepository departmentRepository;
     @Autowired private LectureRepository lectureRepository;
     @Autowired private EnrollmentRepository enrollmentRepository;
@@ -28,6 +30,11 @@ public class AdminController {
     // ─── Guard: check admin session ───
     private boolean isAdmin(HttpSession session) {
         return "ADMIN".equals(session.getAttribute("userType"));
+    }
+    
+    // ─── Guard: check super-admin ───
+    private boolean isSuperAdmin(HttpSession session) {
+        return "SUPER_ADMIN".equals(session.getAttribute("adminRole"));
     }
 
     // Admin Dashboard
