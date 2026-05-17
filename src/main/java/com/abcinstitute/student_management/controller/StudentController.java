@@ -132,6 +132,50 @@ public String settingsPage(HttpSession session, Model model) {
 
 
 
+    
+///  SETTING PAGE SUBMITTING LOGICS / JAVA METHODS
+@PostMapping("/settings")
+public String updateSettings(@RequestParam String fullName,
+                             @RequestParam String email,
+                             @RequestParam String phone,
+                             @RequestParam(required = false) String newPassword,
+                             @RequestParam(required = false) String confirmPassword,
+                             HttpSession session,
+                             RedirectAttributes redirectAttributes) {
+
+    String username = (String) session.getAttribute("loggedInUser");
+    if (username == null) return "redirect:/login";
+
+    Student student = studentService.findByUsername(username).orElse(null);
+    if (student == null) return "redirect:/login";
+
+    if (newPassword != null && !newPassword.trim().isEmpty()) {
+
+        if (!newPassword.equals(confirmPassword)) {
+            redirectAttributes.addFlashAttribute("error", "Passwords do not match!");
+            return "redirect:/settings";
+        }
+
+        student.setPassword(newPassword);
+    }
+
+    student.setFullName(fullName);
+    student.setEmail(email);
+    student.setPhone(phone);
+
+    boolean updated = studentService.updateStudent(student);
+
+    if (updated) {
+        redirectAttributes.addFlashAttribute("success", "Profile updated successfully!");
+    } else {
+        redirectAttributes.addFlashAttribute("error", "Update failed. Please try again.");
+    }
+
+    return "redirect:/settings";
+}
+
+
+
 
     
 }
