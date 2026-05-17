@@ -96,4 +96,24 @@ public class StudentController {
         model.addAttribute("username", username);
         return "course-content";
     }
+
+    // MY COURSES PAGE LOGICS // FOR NEWLY ADDED mycourses.html page 
+    @GetMapping("/my-courses")
+    public String myCourses(HttpSession httpsession, Model model) {
+
+    String username = (String) httpsession.getAttribute("loggedInUser");
+    if (username == null) return "redirect:/login";
+
+    List<Course> enrolledCourses = enrollmentService.getEnrolledCourses(username);
+
+    model.addAttribute("username", username);
+    model.addAttribute("enrolledCourses", enrolledCourses);
+
+    return "my-courses";
+    }
+
+
+
+
+    
 }
