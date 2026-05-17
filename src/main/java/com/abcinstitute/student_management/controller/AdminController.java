@@ -37,6 +37,12 @@ public class AdminController {
         return "SUPER_ADMIN".equals(session.getAttribute("adminRole"));
     }
 
+    /** Injects adminRole into the model so all templates can conditionally render the Admins nav link */
+    private void addCommonAttributes(HttpSession session, Model model) {
+        model.addAttribute("adminRole", session.getAttribute("adminRole"));
+        model.addAttribute("adminName", session.getAttribute("loggedInUser"));
+    }
+
     // Admin Dashboard
     @GetMapping("/dashboard")
     public String adminDashboard(HttpSession session, Model model) {
