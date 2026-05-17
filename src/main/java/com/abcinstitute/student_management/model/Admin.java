@@ -18,6 +18,11 @@ public class Admin {
     private String password;
 
     private String email;
+    /**
+     * Role: "SUPER_ADMIN" or "ADMIN"
+     */
+    @Column(nullable = false)
+    private String role = "ADMIN";
 
     public Admin() {}
 
@@ -25,6 +30,7 @@ public class Admin {
         this.username = username;
         this.password = password;
         this.email = email;
+        this.role     = role;
     }
 
     // Getters and Setters
@@ -38,5 +44,13 @@ public class Admin {
     public void setPassword(String password) { this.password = password; }
 
     public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }}
+    public void setEmail(String email) { this.email = email; }
+
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
+
+    public boolean isSuperAdmin() { return "SUPER_ADMIN".equals(this.role); }
+
+}
+
 
