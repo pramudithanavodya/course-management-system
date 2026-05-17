@@ -176,6 +176,29 @@ public String updateSettings(@RequestParam String fullName,
 
 
 
+    /// STUDENTS UNENROLLING PAGE METHODS
+    @PostMapping("/unenroll/{courseId}")  /// NOT VISIBLES THIS url IT happnes instantly
+    /// but without this method when student cliclked drop the course button -> will show WHITE LABLE error page
+    /// but with this it will redirect to my-courses page
+    public String unenrollCourse(@PathVariable Long courseId,
+                                 HttpSession session,
+                                 RedirectAttributes redirectAttributes) {
+
+        String username = (String) session.getAttribute("loggedInUser");
+        if (username == null) return "redirect:/login";
+
+        boolean removed = enrollmentService.unenrollStudent(username, courseId);
+
+        if (removed) {
+            redirectAttributes.addFlashAttribute("success", "You have unenrolled from this course.");
+        } else {
+            redirectAttributes.addFlashAttribute("error", "Could not unenroll. Please try again.");
+        }
+
+        return "redirect:/my-courses";
+    }
+
+
 
     
 }
