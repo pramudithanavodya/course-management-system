@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ABC Institute – Excellence in Education</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+
+    <script>
+        tailwind.config = {
+          theme: {
+            extend: {
+              fontFamily: {
+                display: ['Syne', 'sans-serif'],
+                body: ['DM Sans', 'sans-serif'],
+              },
+              colors: {
+                crimson: { DEFAULT: '#e94560', dark: '#c62a47', glow: 'rgba(233,69,96,0.35)' },
+                navy:    { DEFAULT: '#0f3460', mid: '#16213e', deep: '#1a1a2e' },
+              },
+              keyframes: {
+                'fade-up':   { '0%': { opacity: 0, transform: 'translateY(40px)' }, '100%': { opacity: 1, transform: 'translateY(0)' } },
+                'fade-in':   { '0%': { opacity: 0 }, '100%': { opacity: 1 } },
+                'scale-in':  { '0%': { opacity: 0, transform: 'scale(0.85)' }, '100%': { opacity: 1, transform: 'scale(1)' } },
+                'float':     { '0%,100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-18px)' } },
+                'spin-slow': { '0%': { transform: 'rotate(0deg)' }, '100%': { transform: 'rotate(360deg)' } },
+                'pulse-ring':{ '0%': { transform: 'scale(0.8)', opacity: 1 }, '100%': { transform: 'scale(2.2)', opacity: 0 } },
+                'shimmer':   { '0%': { backgroundPosition: '-200% center' }, '100%': { backgroundPosition: '200% center' } },
+                'slide-right':{ '0%': { opacity: 0, transform: 'translateX(-30px)' }, '100%': { opacity: 1, transform: 'translateX(0)' } },
+                'count-up':  { '0%': { opacity: 0, transform: 'translateY(10px)' }, '100%': { opacity: 1, transform: 'translateY(0)' } },
+                'morph':     { '0%,100%': { borderRadius: '60% 40% 30% 70%/60% 30% 70% 40%' }, '50%': { borderRadius: '30% 60% 70% 40%/50% 60% 30% 60%' } },
+                'glow-pulse':{ '0%,100%': { boxShadow: '0 0 20px rgba(233,69,96,0.3)' }, '50%': { boxShadow: '0 0 60px rgba(233,69,96,0.7), 0 0 100px rgba(233,69,96,0.2)' } },
+                'particle':  { '0%': { transform: 'translateY(0) translateX(0)', opacity: 1 }, '100%': { transform: 'translateY(-100vh) translateX(20px)', opacity: 0 } },
+                'nav-slide': { '0%': { opacity: 0, transform: 'translateY(-100%)' }, '100%': { opacity: 1, transform: 'translateY(0)' } },
+                'badge-pop': { '0%': { transform: 'scale(0)', opacity: 0 }, '70%': { transform: 'scale(1.1)' }, '100%': { transform: 'scale(1)', opacity: 1 } },
+                'line-grow': { '0%': { width: '0%' }, '100%': { width: '100%' } },
+                'tilt':      { '0%,100%': { transform: 'rotate(-1deg)' }, '50%': { transform: 'rotate(1deg)' } },
+              },
+              animation: {
+                'fade-up':        'fade-up 0.8s cubic-bezier(0.16,1,0.3,1) forwards',
+                'fade-up-d1':     'fade-up 0.8s 0.15s cubic-bezier(0.16,1,0.3,1) both',
+                'fade-up-d2':     'fade-up 0.8s 0.3s cubic-bezier(0.16,1,0.3,1) both',
+                'fade-up-d3':     'fade-up 0.8s 0.45s cubic-bezier(0.16,1,0.3,1) both',
+                'fade-up-d4':     'fade-up 0.8s 0.6s cubic-bezier(0.16,1,0.3,1) both',
+                'fade-up-d5':     'fade-up 0.8s 0.75s cubic-bezier(0.16,1,0.3,1) both',
+                'scale-in':       'scale-in 0.6s 0.2s cubic-bezier(0.16,1,0.3,1) both',
+                'scale-in-d1':    'scale-in 0.6s 0.4s cubic-bezier(0.16,1,0.3,1) both',
+                'scale-in-d2':    'scale-in 0.6s 0.6s cubic-bezier(0.16,1,0.3,1) both',
+                'scale-in-d3':    'scale-in 0.6s 0.8s cubic-bezier(0.16,1,0.3,1) both',
+                'scale-in-d4':    'scale-in 0.6s 1.0s cubic-bezier(0.16,1,0.3,1) both',
+                'float':          'float 6s ease-in-out infinite',
+                'float-d1':       'float 7s 1s ease-in-out infinite',
+                'float-d2':       'float 5s 2s ease-in-out infinite',
+                'spin-slow':      'spin-slow 20s linear infinite',
+                'pulse-ring':     'pulse-ring 2s cubic-bezier(0.4,0,0.6,1) infinite',
+                'shimmer':        'shimmer 3s linear infinite',
+                'slide-right':    'slide-right 0.7s 0.1s cubic-bezier(0.16,1,0.3,1) both',
+                'morph':          'morph 8s ease-in-out infinite',
+                'glow-pulse':     'glow-pulse 3s ease-in-out infinite',
+                'nav-slide':      'nav-slide 0.6s cubic-bezier(0.16,1,0.3,1) both',
+                'badge-pop':      'badge-pop 0.6s 0.3s cubic-bezier(0.34,1.56,0.64,1) both',
+                'tilt':           'tilt 4s ease-in-out infinite',
+                'card-d1':        'fade-up 0.7s 0.2s cubic-bezier(0.16,1,0.3,1) both',
+                'card-d2':        'fade-up 0.7s 0.35s cubic-bezier(0.16,1,0.3,1) both',
+                'card-d3':        'fade-up 0.7s 0.5s cubic-bezier(0.16,1,0.3,1) both',
+              }
+            }
+          }
+        }
+    </script>
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+        body { font-family: 'DM Sans', sans-serif; overflow-x: hidden; }
+
+        /* ── Particle canvas ── */
+        #particles { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+
+        /* ── Morphing blobs ── */
+        .blob {
+          position: absolute; border-radius: 50%;
+          filter: blur(80px); pointer-events: none;
+        }
+        .blob-red  { width: 700px; height: 700px; background: radial-gradient(circle, rgba(233,69,96,0.18) 0%, transparent 70%); top: -250px; right: -200px; animation: morph 12s ease-in-out infinite, float 8s ease-in-out infinite; }
+        .blob-blue { width: 500px; height: 500px; background: radial-gradient(circle, rgba(52,152,219,0.15) 0%, transparent 70%); bottom: -150px; left: -100px; animation: morph 10s 3s ease-in-out infinite, float-d1 7s 1s ease-in-out infinite; }
+        .blob-mid  { width: 350px; height: 350px; background: radial-gradient(circle, rgba(100,50,200,0.12) 0%, transparent 70%); top: 30%; left: 40%; animation: morph 14s 6s ease-in-out infinite; }
+
+        /* ── Grid overlay ── */
+        .grid-overlay {
+          position: absolute; inset: 0; pointer-events: none;
+          background-image: linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+                            linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+          background-size: 60px 60px;
+        }
+
+        /* ── Shimmer text ── */
+        .shimmer-text {
+          background: linear-gradient(90deg, #ffffff 0%, #e94560 25%, #ffffff 50%, #e94560 75%, #ffffff 100%);
+          background-size: 200% auto;
+          -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+          background-clip: text;
+          animation: shimmer 4s linear infinite;
+        }
+
+        /* ── Glowing border card ── */
+        .glow-card {
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 20px;
+          backdrop-filter: blur(16px);
+          transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
+          position: relative; overflow: hidden;
+        }
+        .glow-card::before {
+          content: '';
+          position: absolute; inset: 0; border-radius: 20px;
+          background: linear-gradient(135deg, rgba(233,69,96,0.1) 0%, transparent 60%);
+          opacity: 0; transition: opacity 0.4s;
+        }
+        .glow-card:hover { transform: translateY(-8px) scale(1.02); border-color: rgba(233,69,96,0.4); box-shadow: 0 20px 60px rgba(233,69,96,0.15), 0 0 0 1px rgba(233,69,96,0.2); }
+        .glow-card:hover::before { opacity: 1; }
+
+        /* ── Stat cards ── */
+        .stat-card {
+          background: rgba(255,255,255,0.04);
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 16px; backdrop-filter: blur(16px);
+          transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
+        }
+        .stat-card:hover { transform: translateY(-6px); border-color: rgba(233,69,96,0.5); box-shadow: 0 0 30px rgba(233,69,96,0.2), inset 0 1px 0 rgba(255,255,255,0.1); }
+
+        /* ── Buttons ── */
+        .btn-primary {
+          background: linear-gradient(135deg, #e94560 0%, #c62a47 100%);
+          border-radius: 50px; font-weight: 600;
+          letter-spacing: 0.3px; position: relative; overflow: hidden;
+          transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
+          box-shadow: 0 4px 20px rgba(233,69,96,0.35);
+        }
+        .btn-primary::before {
+          content: ''; position: absolute; inset: 0;
+          background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 60%);
+          opacity: 0; transition: opacity 0.3s;
+        }
+        .btn-primary:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 12px 40px rgba(233,69,96,0.55); }
+        .btn-primary:hover::before { opacity: 1; }
+        .btn-primary:active { transform: translateY(0) scale(0.98); }
+
+        .btn-outline {
+          border: 1.5px solid rgba(255,255,255,0.5); border-radius: 50px;
+          font-weight: 600; background: transparent;
+          transition: all 0.3s cubic-bezier(0.16,1,0.3,1);
+          position: relative; overflow: hidden;
+        }
+        .btn-outline::before {
+          content: ''; position: absolute; inset: 0;
+          background: white; transform: scaleX(0); transform-origin: left;
+          transition: transform 0.35s cubic-bezier(0.16,1,0.3,1);
+        }
+        .btn-outline span { position: relative; z-index: 1; }
+        .btn-outline:hover { border-color: white; box-shadow: 0 8px 30px rgba(255,255,255,0.15); transform: translateY(-3px); }
+        .btn-outline:hover::before { transform: scaleX(1); }
+        .btn-outline:hover span { color: #1a1a2e !important; }
+
+        /* ── Nav ── */
+        .navbar-glass {
+          background: rgba(15, 10, 30, 0.6);
+          backdrop-filter: blur(20px) saturate(180%);
+          border-bottom: 1px solid rgba(255,255,255,0.07);
+          animation: nav-slide 0.6s cubic-bezier(0.16,1,0.3,1) both;
+        }
+
+        /* ── Badge pill ── */
+        .badge-pill {
+          display: inline-flex; align-items: center; gap: 8px;
+          background: rgba(233,69,96,0.15);
+          border: 1px solid rgba(233,69,96,0.35);
+          border-radius: 50px; padding: 6px 18px;
+          font-size: 0.85rem; font-weight: 600; color: #f87091;
+          letter-spacing: 0.5px;
+        }
+        .badge-dot {
+          width: 8px; height: 8px; border-radius: 50%;
+          background: #e94560; position: relative;
+        }
+        .badge-dot::before {
+          content: ''; position: absolute; inset: 0; border-radius: 50%;
+          background: #e94560; animation: pulse-ring 1.8s ease-out infinite;
+        }
+
+        /* ── Divider line ── */
+        .line-accent { height: 3px; border-radius: 2px; background: linear-gradient(90deg, #e94560, transparent); }
+
+        /* ── Icon wrapper ── */
+        .icon-wrap {
+          width: 54px; height: 54px; border-radius: 14px;
+          background: rgba(233,69,96,0.12);
+          border: 1px solid rgba(233,69,96,0.25);
+          display: flex; align-items: center; justify-content: center;
+          transition: all 0.3s;
+        }
+        .glow-card:hover .icon-wrap { background: rgba(233,69,96,0.25); box-shadow: 0 0 20px rgba(233,69,96,0.3); }
+
+        /* ── Rotating ring decoration ── */
+        .ring-deco {
+          position: absolute; border-radius: 50%;
+          border: 1px solid rgba(233,69,96,0.15);
+          pointer-events: none;
+        }
+
+        /* ── Footer ── */
+        .footer-glow { background: linear-gradient(180deg, #0d0b1a 0%, #060410 100%); border-top: 1px solid rgba(255,255,255,0.06); }
+
+        /* ── Number counter effect ── */
+        .stat-num { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 2.6rem; line-height: 1; color: #e94560; }
+
+        /* Scroll bar styling */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0d0b1a; }
+        ::-webkit-scrollbar-thumb { background: #e94560; border-radius: 3px; }
+    </style>
+</head>
+<body class="bg-[#0d0b1a] text-white" style="font-family:'DM Sans',sans-serif">
+
+<!-- ╔══════════════════════════════════════════╗ -->
+<!-- ║               NAVIGATION                 ║ -->
+<!-- ╚══════════════════════════════════════════╝ -->
+<nav class="navbar-glass fixed top-0 left-0 right-0 z-50 py-3">
+    <div class="max-w-7xl mx-auto px-6 flex items-center justify-between">
+
+        <a href="/" class="flex items-center gap-2 group">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#e94560] to-[#c62a47] flex items-center justify-center shadow-lg shadow-[rgba(233,69,96,0.4)] transition-transform group-hover:scale-110">
+                <i class="fas fa-graduation-cap text-white text-sm"></i>
+            </div>
+            <span class="font-display font-800 text-xl tracking-tight text-white">ABC<span class="text-[#e94560]">Institute</span></span>
+        </a>
+
+        <div class="flex items-center gap-3">
+            <a href="/login" class="btn-outline px-6 py-2.5 text-sm text-white inline-block">
+                <span class="text-white">Login</span>
+            </a>
+            <a href="/signup" class="btn-primary px-6 py-2.5 text-sm text-white inline-block rounded-full font-semibold">
+                Sign Up
+            </a>
+        </div>
+    </div>
+</nav>
+
+
+<!-- ╔══════════════════════════════════════════╗ -->
+<!-- ║                  HERO                    ║ -->
+<!-- ╚══════════════════════════════════════════╝ -->
+<section class="relative min-h-screen flex items-center overflow-hidden" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 55%, #0f3460 100%);">
+
+    <!-- Background layers -->
+    <canvas id="particles"></canvas>
+    <div class="grid-overlay"></div>
+    <div class="blob blob-red"></div>
+    <div class="blob blob-blue"></div>
+    <div class="blob blob-mid"></div>
+
+    <!-- Decorative rings -->
+    <div class="ring-deco" style="width:600px;height:600px;top:50%;left:50%;transform:translate(-50%,-50%);animation:spin-slow 25s linear infinite;"></div>
+    <div class="ring-deco" style="width:400px;height:400px;top:50%;left:50%;transform:translate(-50%,-50%);border-color:rgba(52,152,219,0.1);animation:spin-slow 18s linear infinite reverse;"></div>
+
+    <!-- Main content -->
+    <div class="relative z-10 max-w-7xl mx-auto px-6 w-full pt-28 pb-20">
+
+        <div class="flex flex-col lg:flex-row items-center gap-16">
+
+            <!-- ── Left col ── -->
+            <div class="flex-1">
+
+                <div class="animate-badge-pop">
+                    <div class="badge-pill mb-6 w-fit">
+                        <span class="badge-dot"></span>
+                        🎓 Premier Learning Institute
+                    </div>
+                </div>
+
+                <h1 class="font-display font-black text-5xl lg:text-6xl xl:text-7xl leading-[1.08] mb-6 animate-fade-up-d1">
+                    Transform Your<br/>
+                    Future with<br/>
+                    <span class="shimmer-text">ABC Institute</span>
+                </h1>
+
+                <div class="line-accent w-24 mb-7 animate-fade-up-d2" style="animation: line-grow 0.8s 0.5s cubic-bezier(0.16,1,0.3,1) both, fade-in 0.3s 0.5s both; width: 0;"></div>
+
+                <p class="text-slate-400 text-lg leading-relaxed max-w-lg mb-10 animate-fade-up-d3">
+                    Join thousands of students mastering in-demand skills. Enroll in expert-led courses and unlock your full potential with industry-recognised certifications.
+                </p>
+
+                <div class="flex flex-wrap gap-4 animate-fade-up-d4">
+                    <a href="/signup" class="btn-primary text-white px-8 py-4 text-base inline-flex items-center gap-3 font-semibold">
+                        <i class="fas fa-rocket"></i>
+                        Get Started Free
+                    </a>
+                    <a href="/login" class="btn-outline px-8 py-4 text-base inline-flex items-center gap-3 font-semibold">
+            <span class="text-white flex items-center gap-3">
+              <i class="fas fa-sign-in-alt"></i>
+              Student Login
+            </span>
+                    </a>
+                </div>
+
+                <!-- Trust row -->
+                <div class="flex items-center gap-6 mt-10 animate-fade-up-d5">
+                    <div class="flex -space-x-2">
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-red-500 border-2 border-[#1a1a2e] flex items-center justify-center text-xs font-bold">A</div>
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 border-2 border-[#1a1a2e] flex items-center justify-center text-xs font-bold">K</div>
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 border-2 border-[#1a1a2e] flex items-center justify-center text-xs font-bold">M</div>
+                        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 border-2 border-[#1a1a2e] flex items-center justify-center text-xs font-bold">S</div>
+                    </div>
+                    <div class="text-sm text-slate-400">
+                        <span class="text-white font-semibold">2,000+</span> students already enrolled
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <i class="fas fa-star text-amber-400 text-xs"></i>
+                        <i class="fas fa-star text-amber-400 text-xs"></i>
+                        <i class="fas fa-star text-amber-400 text-xs"></i>
+                        <i class="fas fa-star text-amber-400 text-xs"></i>
+                        <i class="fas fa-star text-amber-400 text-xs"></i>
+                        <span class="text-slate-400 text-xs ml-1">5.0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Right col: stat cards ── -->
+            <div class="w-full lg:w-auto lg:min-w-[360px]">
+                <div class="grid grid-cols-2 gap-4 animate-float">
+
+                    <div class="stat-card p-6 text-center animate-scale-in">
+                        <div class="stat-num mb-1 animate-glow-pulse">50+</div>
+                        <p class="text-slate-400 text-sm font-medium">Courses Available</p>
+                    </div>
+
+                    <div class="stat-card p-6 text-center animate-scale-in-d1">
+                        <div class="stat-num mb-1">2K+</div>
+                        <p class="text-slate-400 text-sm font-medium">Students Enrolled</p>
+                    </div>
+
+                    <div class="stat-card p-6 text-center animate-scale-in-d2">
+                        <div class="stat-num mb-1">20+</div>
+                        <p class="text-slate-400 text-sm font-medium">Expert Lecturers</p>
+                    </div>
+
+                    <div class="stat-card p-6 text-center animate-scale-in-d3">
+                        <div class="stat-num mb-1">5★</div>
+                        <p class="text-slate-400 text-sm font-medium">Rated Institute</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Feature cards row ── -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-20">
+
+            <div class="glow-card p-7 animate-card-d1">
+                <div class="icon-wrap mb-5">
+                    <i class="fas fa-laptop-code text-[#e94560] text-xl"></i>
+                </div>
+                <h5 class="font-display font-700 text-white text-lg mb-2">Technology Courses</h5>
+                <p class="text-slate-400 text-sm leading-relaxed">Java, Spring Boot, Web Development, Cloud & DevOps</p>
+                <div class="mt-5 flex items-center gap-2 text-[#e94560] text-sm font-semibold group cursor-pointer w-fit">
+                    <span>Explore</span>
+                    <i class="fas fa-arrow-right text-xs transition-transform group-hover:translate-x-1"></i>
+                </div>
+            </div>
+
+            <div class="glow-card p-7 animate-card-d2">
+                <div class="icon-wrap mb-5">
+                    <i class="fas fa-briefcase text-[#e94560] text-xl"></i>
+                </div>
+                <h5 class="font-display font-700 text-white text-lg mb-2">Business Programs</h5>
+                <p class="text-slate-400 text-sm leading-relaxed">Management, Finance, Communication & Leadership</p>
+                <div class="mt-5 flex items-center gap-2 text-[#e94560] text-sm font-semibold group cursor-pointer w-fit">
+                    <span>Explore</span>
+                    <i class="fas fa-arrow-right text-xs transition-transform group-hover:translate-x-1"></i>
+                </div>
+            </div>
+
+            <div class="glow-card p-7 animate-card-d3">
+                <div class="icon-wrap mb-5">
+                    <i class="fas fa-certificate text-[#e94560] text-xl"></i>
+                </div>
+                <h5 class="font-display font-700 text-white text-lg mb-2">Certifications</h5>
+                <p class="text-slate-400 text-sm leading-relaxed">Industry-recognised certificates trusted by top employers</p>
+                <div class="mt-5 flex items-center gap-2 text-[#e94560] text-sm font-semibold group cursor-pointer w-fit">
+                    <span>Explore</span>
+                    <i class="fas fa-arrow-right text-xs transition-transform group-hover:translate-x-1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom fade -->
+    <div class="absolute bottom-0 left-0 right-0 h-24 pointer-events-none" style="background:linear-gradient(to top, #0d0b1a, transparent)"></div>
+</section>
+
+
+<!-- ╔══════════════════════════════════════════╗ -->
+<!-- ║                FOOTER                    ║ -->
+<!-- ╚══════════════════════════════════════════╝ -->
+<footer class="footer-glow py-8">
+    <div class="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-[#e94560] to-[#c62a47] flex items-center justify-center">
+                <i class="fas fa-graduation-cap text-white text-xs"></i>
+            </div>
+            <span class="text-slate-400 text-sm">© 2024 ABC Institute. All Rights Reserved.</span>
+        </div>
+        <a href="/admin-login" class="text-[#e94560] text-sm font-semibold hover:text-white transition-colors flex items-center gap-2">
+            <i class="fas fa-shield-alt text-xs"></i>
+            Admin Portal
+        </a>
+    </div>
+</footer>
+
+
+<!-- ╔══════════════════════════════════════════╗ -->
+<!-- ║          PARTICLE CANVAS JS              ║ -->
+<!-- ╚══════════════════════════════════════════╝ -->
+<script>
+    (function () {
+      const canvas = document.getElementById('particles');
+      const ctx    = canvas.getContext('2d');
+      let W, H, particles = [];
+
+      function resize() {
+        W = canvas.width  = window.innerWidth;
+        H = canvas.height = window.innerHeight;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      const COLORS = ['rgba(233,69,96,', 'rgba(52,152,219,', 'rgba(180,100,255,', 'rgba(255,255,255,'];
+
+      function createParticle() {
+        const col = COLORS[Math.floor(Math.random() * COLORS.length)];
+        return {
+          x: Math.random() * W,
+          y: H + 10,
+          r: Math.random() * 2 + 0.5,
+          speed: Math.random() * 0.6 + 0.2,
+          drift: (Math.random() - 0.5) * 0.4,
+          alpha: Math.random() * 0.5 + 0.1,
+          color: col,
+        };
+      }
+
+      for (let i = 0; i < 80; i++) {
+        const p = createParticle();
+        p.y = Math.random() * H; // scatter initially
+        particles.push(p);
+      }
+
+      function tick() {
+        ctx.clearRect(0, 0, W, H);
+        particles.forEach((p, i) => {
+          p.y -= p.speed;
+          p.x += p.drift;
+          p.alpha += (Math.random() - 0.5) * 0.01;
+          p.alpha = Math.max(0.05, Math.min(0.6, p.alpha));
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = p.color + p.alpha + ')';
+          ctx.fill();
+
+          if (p.y < -10) particles[i] = createParticle();
+        });
+        requestAnimationFrame(tick);
+      }
+      tick();
+
+      // Counter animation on scroll
+      const stats = document.querySelectorAll('.stat-num');
+      const targets = ['50', '2000', '20', '5'];
+      const suffixes = ['+', '+', '+', '★'];
+      let animated = false;
+
+      function animateCounters() {
+        if (animated) return;
+        animated = true;
+        stats.forEach((el, i) => {
+          const target = parseInt(targets[i]);
+          let current = 0;
+          const step = Math.ceil(target / 40);
+          const interval = setInterval(() => {
+            current = Math.min(current + step, target);
+            el.textContent = (i === 1 && current >= 1000) ? (current / 1000).toFixed(1) + 'K' + suffixes[i] : current + suffixes[i];
+            if (current >= target) clearInterval(interval);
+          }, 30);
+        });
+      }
+
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) animateCounters(); });
+      }, { threshold: 0.3 });
+      stats.forEach(s => observer.observe(s));
+    })();
+</script>
+</body>
+</html>
