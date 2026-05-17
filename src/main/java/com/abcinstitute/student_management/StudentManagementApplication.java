@@ -8,6 +8,8 @@ public class StudentManagementApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(StudentManagementApplication.class, args);
-        System.out.println("✅ ABC Institute running at: http://localhost:8080");
+
+        System.out.println("✅ ABC Institute running at: http://localhost:8111 ");
+
     }
 }

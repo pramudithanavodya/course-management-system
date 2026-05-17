@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>My Courses – ABC Institute</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        crimson: '#e94560',
+                        navy:    '#0f3460',
+                        mid:     '#1a1a2e',
+                        deep:    '#0d0b1a'
+                    },
+                    fontFamily: {
+                        display: ['Syne',    'sans-serif'],
+                        body:    ['DM Sans', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { min-height: 100%; font-family: 'DM Sans', sans-serif; background: #0d0b1a; color: #fff; }
+
+        /* ══ Orbs ══════════════════════════════════════════════ */
+        @keyframes floatUp {
+            0%   { transform: translateY(110vh) scale(.4); opacity: 0  }
+            8%   { opacity: .45 }
+            92%  { opacity: .15 }
+            100% { transform: translateY(-8vh)  scale(1.2); opacity: 0 }
+        }
+        .orb {
+            position: fixed; border-radius: 50%; pointer-events: none; z-index: 0;
+            animation: floatUp linear infinite;
+            background: radial-gradient(circle at 40% 40%, rgba(233,69,96,.38), transparent 70%);
+        }
+
+        /* ══ Grid bg ════════════════════════════════════════════ */
+        @keyframes gridDrift { to { background-position: 60px 60px } }
+        .grid-bg {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background-image:
+                linear-gradient(rgba(233,69,96,.028) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(233,69,96,.028) 1px, transparent 1px);
+            background-size: 60px 60px;
+            animation: gridDrift 8s linear infinite;
+        }
+
+        /* ══ Sidebar ════════════════════════════════════════════ */
+        .sidebar {
+            position: fixed; top: 0; left: 0; height: 100vh; width: 260px;
+            background: linear-gradient(170deg, rgba(18,18,43,.97) 0%, rgba(15,52,96,.93) 100%);
+            backdrop-filter: blur(24px); border-right: 1px solid rgba(255,255,255,.06);
+            display: flex; flex-direction: column; padding: 28px 20px; z-index: 40; overflow-y: auto;
+        }
+
+        /* ══ Nav links ══════════════════════════════════════════ */
+        .nav-link {
+            display: flex; align-items: center; gap: 10px; color: rgba(255,255,255,.5);
+            border-radius: 11px; padding: 10px 14px; margin-bottom: 3px; text-decoration: none;
+            font-size: .85rem; transition: background .2s, color .2s, padding-left .2s;
+            position: relative; overflow: hidden;
+        }
+        .nav-link::before {
+            content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+            background: #e94560; border-radius: 0 3px 3px 0;
+            transform: scaleY(0); transition: transform .2s;
+        }
+        .nav-link:hover                       { background: rgba(233,69,96,.1); color: #fff; padding-left: 18px; }
+        .nav-link:hover::before,
+        .nav-link.active::before              { transform: scaleY(1); }
+        .nav-link.active                      { background: rgba(233,69,96,.12); color: #fff; padding-left: 18px; }
+        .nav-link i                           { width: 16px; text-align: center; }
+
+        /* ══ Glass ══════════════════════════════════════════════ */
+        .glass {
+            background: rgba(255,255,255,.04); backdrop-filter: blur(18px);
+            border: 1px solid rgba(255,255,255,.08);
+            transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+        }
+        .glass:hover {
+            transform: translateY(-5px); border-color: rgba(233,69,96,.25);
+            box-shadow: 0 16px 40px rgba(233,69,96,.08), 0 0 0 1px rgba(233,69,96,.06);
+        }
+
+        /* ══ Title shimmer ══════════════════════════════════════ */
+        @keyframes gradientFlow {
+            0%,100% { background-position: 0%   50%; }
+            50%     { background-position: 100% 50%; }
+        }
+        .title-shimmer {
+            font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.85rem;
+            background: linear-gradient(90deg, #fff 0%, #ffb3c1 35%, #e94560 60%, #fff 100%);
+            background-size: 200% auto; -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent; background-clip: text;
+            animation: gradientFlow 4s ease infinite;
+        }
+
+        /* ══ Shimmer button ═════════════════════════════════════ */
+        @keyframes btnShimmer {
+            0%   { background-position: -200% center; }
+            100% { background-position:  200% center; }
+        }
+        .btn-add-sm {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: linear-gradient(90deg, #c62a47, #e94560, #ff6b84, #e94560, #c62a47);
+            background-size: 300% auto; animation: btnShimmer 3s linear infinite;
+            color: #fff; border: none; border-radius: 10px; padding: 7px 16px;
+            font-family: 'Syne', sans-serif; font-weight: 700; font-size: .75rem;
+            text-decoration: none; transition: transform .2s, box-shadow .2s; cursor: pointer;
+            white-space: nowrap;
+        }
+        .btn-add-sm:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(233,69,96,.4); }
+
+        /* ══ Stat cards ═════════════════════════════════════════ */
+        .stat-r { background: linear-gradient(135deg, #e94560 0%, #c62a47 100%); }
+        .stat-b { background: linear-gradient(135deg, #3a86ff 0%, #1a6fd4 100%); }
+        .stat-g { background: linear-gradient(135deg, #2ecc71 0%, #16a854 100%); }
+
+        @keyframes pulseGlow {
+            0%,100% { box-shadow: 0 0 20px rgba(233,69,96,.25); }
+            50%     { box-shadow: 0 0 40px rgba(233,69,96,.50); }
+        }
+        .glow-pulse { animation: pulseGlow 3s ease-in-out infinite; }
+
+        /* ══ Animations ═════════════════════════════════════════ */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(22px); }
+            to   { opacity: 1; transform: translateY(0);    }
+        }
+        .anim { animation: fadeInUp .55s ease both; }
+        .d1   { animation-delay: .05s; } .d2 { animation-delay: .12s; }
+        .d3   { animation-delay: .20s; } .d4 { animation-delay: .28s; }
+        .d5   { animation-delay: .36s; } .d6 { animation-delay: .44s; }
+
+        @keyframes cardEntrance {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0);    }
+        }
+        .card-enter { animation: cardEntrance .5s ease both; }
+
+        /* staggered delays applied to direct children of .course-grid */
+        .course-grid > .card-enter:nth-child(1)   { animation-delay: .30s; }
+        .course-grid > .card-enter:nth-child(2)   { animation-delay: .36s; }
+        .course-grid > .card-enter:nth-child(3)   { animation-delay: .42s; }
+        .course-grid > .card-enter:nth-child(4)   { animation-delay: .48s; }
+        .course-grid > .card-enter:nth-child(5)   { animation-delay: .54s; }
+        .course-grid > .card-enter:nth-child(6)   { animation-delay: .60s; }
+        .course-grid > .card-enter:nth-child(7)   { animation-delay: .66s; }
+        .course-grid > .card-enter:nth-child(8)   { animation-delay: .72s; }
+        .course-grid > .card-enter:nth-child(n+9) { animation-delay: .78s; }
+
+        /* ══ Live dot ═══════════════════════════════════════════ */
+        @keyframes liveDot { 0%,100% { opacity: 1; } 50% { opacity: .25; } }
+        .live-dot { animation: liveDot 1.5s ease-in-out infinite; }
+
+        /* ══ Glow line ══════════════════════════════════════════ */
+        .glow-line {
+            height: 1px; border: none;
+            background: linear-gradient(90deg, transparent, rgba(233,69,96,.3), transparent);
+            margin: 14px 0;
+        }
+
+        /* ══ Section head ═══════════════════════════════════════ */
+        .sec-head { display: flex; align-items: center; gap: 10px; margin-bottom: 0; }
+        .sec-bar  { width: 3px; height: 20px; border-radius: 99px; background: #e94560; }
+
+        /* ══ Badges ═════════════════════════════════════════════ */
+        .badge-enr {
+            background: rgba(233,69,96,.12); color: #e94560;
+            border: 1px solid rgba(233,69,96,.25); border-radius: 999px;
+            padding: 2px 11px; font-size: .7rem; font-weight: 700; font-family: 'Syne', sans-serif;
+        }
+        .badge-enr-green {
+            background: rgba(46,204,113,.12); color: #2ecc71;
+            border: 1px solid rgba(46,204,113,.25); border-radius: 999px;
+            padding: 2px 11px; font-size: .7rem; font-weight: 700; font-family: 'Syne', sans-serif;
+        }
+        .badge-code {
+            background: rgba(255,255,255,.05); color: rgba(255,255,255,.45);
+            border: 1px solid rgba(255,255,255,.1); border-radius: 6px;
+            padding: 2px 8px; font-size: .7rem; font-weight: 600;
+            font-family: 'Syne', sans-serif; letter-spacing: .04em;
+        }
+
+        /* ══ User pill pulse ════════════════════════════════════ */
+        @keyframes pillPulse {
+            0%,100% { box-shadow: 0 0 0   rgba(233,69,96,0);  }
+            50%     { box-shadow: 0 0 14px rgba(233,69,96,.3); }
+        }
+        .user-pill { animation: pillPulse 3s ease-in-out infinite; }
+
+        /* ══ Progress bar ═══════════════════════════════════════ */
+        .progress-bar {
+            height: 5px; border-radius: 99px;
+            background: rgba(255,255,255,.06); overflow: hidden; margin: 6px 0 14px;
+        }
+        .progress-fill {
+            height: 100%; width: 0%;
+            background: linear-gradient(90deg, #e94560, #ff6b84);
+            border-radius: 99px; transition: width 1.2s ease;
+        }
+
+        /* ══ Scrollbar ══════════════════════════════════════════ */
+        ::-webkit-scrollbar       { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(233,69,96,.3); border-radius: 99px; }
+
+        @media(max-width:768px) {
+            .sidebar   { display: none; }
+            .main-wrap { margin-left: 0 !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+
+<!-- Floating Orbs -->
+<div class="orb" style="width:13px;height:13px;left:6%;animation-duration:17s;animation-delay:0s;"></div>
+<div class="orb" style="width:7px;height:7px;left:15%;animation-duration:23s;animation-delay:4s;opacity:.6"></div>
+<div class="orb" style="width:10px;height:10px;left:28%;animation-duration:13s;animation-delay:7s;"></div>
+<div class="orb" style="width:5px;height:5px;left:40%;animation-duration:20s;animation-delay:2s;opacity:.5"></div>
+<div class="orb" style="width:14px;height:14px;left:54%;animation-duration:10s;animation-delay:5s;"></div>
+<div class="orb" style="width:9px;height:9px;left:66%;animation-duration:18s;animation-delay:9s;"></div>
+<div class="orb" style="width:6px;height:6px;left:76%;animation-duration:14s;animation-delay:1s;opacity:.5"></div>
+<div class="orb" style="width:12px;height:12px;left:87%;animation-duration:21s;animation-delay:6s;"></div>
+<div class="orb" style="width:8px;height:8px;left:93%;animation-duration:16s;animation-delay:3s;"></div>
+<div class="orb" style="width:11px;height:11px;left:46%;animation-duration:25s;animation-delay:11s;opacity:.4"></div>
+<div class="orb" style="width:6px;height:6px;left:22%;animation-duration:19s;animation-delay:13s;opacity:.5"></div>
+<div class="orb" style="width:9px;height:9px;left:80%;animation-duration:12s;animation-delay:8s;"></div>
+
+<div class="flex relative z-10">
+
+    <!-- ── Sidebar ──────────────────────────────────────────── -->
+    <aside class="sidebar">
+        <div class="mb-7 anim d1">
+            <p class="font-display font-extrabold text-xl text-white tracking-tight">
+                🎓 ABC <span style="color:#e94560">Institute</span>
+            </p>
+            <p class="text-white/25 text-xs mt-0.5">Student Portal</p>
+        </div>
+
+        <div class="glass user-pill rounded-2xl px-4 py-3 mb-6 anim d2">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-full flex items-center justify-center font-display font-bold text-sm text-white flex-shrink-0"
+                     style="background:linear-gradient(135deg,#e94560,#c62a47)">S</div>
+                <div>
+                    <p class="text-white text-sm font-semibold font-display truncate" th:text="${username}">Student</p>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-green-400 live-dot"></span>
+                        <p class="text-white/35 text-xs">Active Student</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <nav class="flex-1 anim d3">
+            <p class="text-white/20 text-xs uppercase tracking-widest font-display mb-3 px-2">Navigation</p>
+            <a href="/dashboard"  class="nav-link"><i class="fas fa-home"></i>Dashboard</a>
+            <a href="/my-courses" class="nav-link active"><i class="fas fa-book-open"></i>My Courses</a>
+            <a href="/dashboard"  class="nav-link"><i class="fas fa-chart-line"></i>Progress</a>
+            <a href="/dashboard"  class="nav-link"><i class="fas fa-bell"></i>Notifications</a>
+            <a href="/settings"   class="nav-link"><i class="fas fa-cog"></i>Settings</a>
+        </nav>
+
+        <div class="anim d4">
+            <hr class="glow-line">
+            <a href="/logout" class="nav-link" style="color:rgba(233,69,96,.75)">
+                <i class="fas fa-sign-out-alt"></i>Sign Out
+            </a>
+        </div>
+    </aside>
+
+    <!-- ── Main ─────────────────────────────────────────────── -->
+    <main class="main-wrap flex-1 min-h-screen" style="margin-left:260px; padding:36px 36px 60px">
+
+        <!-- Header -->
+        <div class="flex justify-between items-start mb-8 anim d1">
+            <div>
+                <h1 class="title-shimmer leading-none mb-1">My Courses</h1>
+                <p class="text-white/35 text-sm font-body mt-2">Your enrolled learning path</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="glass rounded-full px-4 py-2 flex items-center gap-2 text-sm text-white/50">
+                    <span class="inline-block w-2 h-2 rounded-full bg-green-400 live-dot"></span>
+                    Online
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Stats strip ─────────────────────────────────────── -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+
+            <div class="stat-r rounded-2xl p-5 anim d2 glow-pulse">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-white/65 text-xs font-display uppercase tracking-widest mb-1">Enrolled</p>
+                        <p class="text-5xl font-display font-extrabold text-white leading-none"
+                           th:text="${enrolledCourses != null ? enrolledCourses.size() : 0}">0</p>
+                        <p class="text-white/50 text-xs mt-2">Active courses</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center"
+                         style="background:rgba(255,255,255,0.15)">
+                        <i class="fas fa-book text-white text-lg"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-b rounded-2xl p-5 anim d3">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-white/65 text-xs font-display uppercase tracking-widest mb-1">In Progress</p>
+                        <p class="text-5xl font-display font-extrabold text-white leading-none"
+                           th:text="${enrolledCourses != null ? enrolledCourses.size() : 0}">0</p>
+                        <p class="text-white/50 text-xs mt-2">Courses active</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center"
+                         style="background:rgba(255,255,255,0.15)">
+                        <i class="fas fa-spinner text-white text-lg"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-g rounded-2xl p-5 anim d4">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-white/65 text-xs font-display uppercase tracking-widest mb-1">Status</p>
+                        <p class="text-5xl font-display font-extrabold text-white leading-none">Pro</p>
+                        <p class="text-white/50 text-xs mt-2">Account active</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center"
+                         style="background:rgba(255,255,255,0.15)">
+                        <i class="fas fa-shield-alt text-white text-lg"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Enrolled Courses ─────────────────────────────────── -->
+        <!--
+            ╔══════════════════════════════════════════════════════╗
+            ║  BUGS FIXED                                          ║
+            ║  1. course.progress removed — that field does NOT    ║
+            ║     exist on the Course entity. Thymeleaf threw a    ║
+            ║     PropertyAccessException on every card, killing   ║
+            ║     the th:each loop after the first iteration.      ║
+            ║     Result: only 1 card rendered, "View Content"     ║
+            ║     button was never reached, page felt broken.      ║
+            ║  2. th:each is now a direct child of .course-grid    ║
+            ║     so nth-child CSS stagger works correctly.        ║
+            ║  3. Null-safe guard on enrolledCourses everywhere.   ║
+            ╚══════════════════════════════════════════════════════╝
+        -->
+        <div th:if="${enrolledCourses != null and !enrolledCourses.isEmpty()}" class="mb-4 anim d5">
+            <div class="sec-head mb-5">
+                <div class="sec-bar" style="background:#2ecc71"></div>
+                <h2 class="font-display font-bold text-white text-base">My Enrolled Courses</h2>
+                <span class="badge-enr" th:text="${enrolledCourses.size()}">0</span>
+            </div>
+
+            <!-- Direct children of .course-grid are the iterated cards -->
+            <div class="course-grid grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                <div th:each="course : ${enrolledCourses}"
+                     class="glass rounded-2xl p-5 card-enter flex flex-col">
+
+                    <!-- Header: code + name | green Enrolled badge -->
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <span class="badge-code mb-2 inline-block"
+                                  th:text="${course.courseCode}">CODE</span>
+                            <h3 class="font-display font-bold text-white text-sm mt-1 leading-snug"
+                                th:text="${course.courseName}">Course Name</h3>
+                        </div>
+                        <span class="badge-enr-green flex-shrink-0">Enrolled</span>
+                    </div>
+
+                    <!-- Description snippet -->
+                    <p class="text-white/30 text-xs leading-relaxed mb-3 flex-1"
+                       th:text="${#strings.abbreviate(course.courseContent, 110)}">
+                        Course content description...
+                    </p>
+
+                    <!-- Progress bar — shows 0% safely (no .progress field on entity).
+                         When you add an int/double progress field to Course, replace the
+                         hardcoded style with:
+                         th:style="'width:' + ${course.progress} + '%'"              -->
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-white/35">Progress</span>
+                            <span class="font-display font-bold" style="color:#e94560">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width:0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Footer: hrs/week + View Content button -->
+                    <div class="flex justify-between items-center mt-4 pt-3 border-t border-white/5">
+                        <span class="text-white/40 text-xs flex items-center gap-1.5">
+                            <i class="fas fa-clock" style="color:#e94560"></i>
+                            <span th:text="${course.lectureHoursPerWeek}">0</span> hrs/week
+                        </span>
+                        <!-- FIX: this button was always present in the template but
+                             was never rendered because the crash above stopped the loop.
+                             Now fully visible and functional. -->
+                        <a th:href="@{/course-content/{id}(id=${course.id})}" class="btn-add-sm">
+                            View Content <i class="fas fa-arrow-right text-[10px]"></i>
+                        </a>
+                    </div>
+
+                </div><!-- end card -->
+
+            </div><!-- end .course-grid -->
+        </div>
+
+        <!-- ── Empty state ─────────────────────────────────────── -->
+        <div th:if="${enrolledCourses == null or enrolledCourses.isEmpty()}"
+             class="flex flex-col items-center py-24 anim d6">
+            <div class="w-20 h-20 rounded-2xl flex items-center justify-center mb-6"
+                 style="background:rgba(233,69,96,0.07); border:1px solid rgba(233,69,96,0.12)">
+                <i class="fas fa-book-open text-4xl" style="color:rgba(233,69,96,0.35)"></i>
+            </div>
+            <p class="font-display font-bold text-base text-white/30 mb-2">No enrolled courses yet</p>
+            <p class="text-xs text-white/15 mb-6 text-center" style="max-width:280px">
+                Browse the catalogue and enrol in a course to start your learning journey.
+            </p>
+            <a href="/dashboard" class="btn-add-sm">
+                <i class="fas fa-search"></i> Browse Courses
+            </a>
+        </div>
+
+    </main>
+</div>
+
+<script>
+    // Animate progress fills to their target widths on load.
+    // Currently all 0% — wire real values once Course entity has a progress field.
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.progress-fill').forEach(function (bar) {
+            var target = bar.dataset.width || '0';
+            setTimeout(function () { bar.style.width = target + '%'; }, 350);
+        });
+    });
+</script>
+
+</body>
+</html>
