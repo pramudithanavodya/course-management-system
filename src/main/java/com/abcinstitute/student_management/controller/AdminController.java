@@ -51,7 +51,7 @@ public class AdminController {
         model.addAttribute("totalStudents", studentService.getAllStudents().size());
         model.addAttribute("totalDepts", departmentRepository.count());
         model.addAttribute("totalLecturers", lectureRepository.count());
-        model.addAttribute("adminName", session.getAttribute("loggedInUser"));
+        addCommonAttributes(session, model);
         return "admin/admin-dashboard";
     }
 
