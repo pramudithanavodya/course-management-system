@@ -162,6 +162,7 @@ public class AdminController {
     public String listDepts(HttpSession session, Model model) {
         if (!isAdmin(session)) return "redirect:/admin-login";
         model.addAttribute("departments", departmentRepository.findAll());
+        addCommonAttributes(session, model);
         return "admin/departments";
     }
 
@@ -189,6 +190,8 @@ public class AdminController {
     public String listStudents(HttpSession session, Model model) {
         if (!isAdmin(session)) return "redirect:/admin-login";
         model.addAttribute("students", studentService.getAllStudents());
+        addCommonAttributes(session, model);
         return "admin/students";
     }
+    
 }
