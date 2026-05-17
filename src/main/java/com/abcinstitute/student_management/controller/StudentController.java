@@ -112,6 +112,24 @@ public class StudentController {
     return "my-courses";
     }
 
+    /// SETTINGS LANDING PAGE LOGIC (@GetMapping) --> Get data
+    /// Add settings page controller method for newly created settings.html
+    // GET: Show settings page pre-filled with current student data
+@GetMapping("/settings")
+public String settingsPage(HttpSession session, Model model) {
+
+    String username = (String) session.getAttribute("loggedInUser");
+    if (username == null) return "redirect:/login";
+
+    Student student = studentService.findByUsername(username).orElse(null);
+    if (student == null) return "redirect:/login";
+
+    model.addAttribute("username", username);
+    model.addAttribute("student", student);
+
+    return "settings";
+}
+
 
 
 
