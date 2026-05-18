@@ -1,3 +1,4 @@
+
 package com.abcinstitute.student_management.model;
 
 import jakarta.persistence.*;
@@ -41,4 +42,5 @@ public class Enrollment {
 
     public LocalDateTime getEnrolledDate() { return enrolledDate; }
     public void setEnrolledDate(LocalDateTime enrolledDate) { this.enrolledDate = enrolledDate; }
+
 }

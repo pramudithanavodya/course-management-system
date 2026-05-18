@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Departments – Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        crimson: '#e94560',
+                        navy: '#0f3460',
+                        mid: '#1a1a2e',
+                        deep: '#0d0b1a'
+                    },
+                    fontFamily: {
+                        display: ['Syne', 'sans-serif'],
+                        body: ['DM Sans', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+
+        /* ══ Modal ════════════════════════════════════════════ */
+.modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center; z-index: 50;
+    visibility: hidden; opacity: 0; transition: visibility .2s, opacity .2s;
+}
+.modal-overlay.active { visibility: visible; opacity: 1; }
+.modal-box {
+    background: rgba(26,26,46,0.95); backdrop-filter: blur(20px);
+    border: 1px solid rgba(233,69,96,.2); border-radius: 20px;
+    padding: 28px; max-width: 420px; width: 90%; text-align: center;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+}
+.modal-box i { font-size: 2.5rem; color: #e94560; margin-bottom: 12px; }
+.modal-box p { color: rgba(255,255,255,.6); font-size: .85rem; margin: 12px 0 20px; line-height: 1.5; }
+.modal-box .dept-highlight { color: #fff; font-weight: 700; font-family: 'Syne', sans-serif; }
+.modal-actions { display: flex; justify-content: center; gap: 12px; }
+.btn-cancel, .btn-confirm {
+    padding: 8px 20px; border-radius: 10px; font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: .8rem; text-decoration: none; transition: all .2s;
+}
+.btn-cancel { background: rgba(255,255,255,.06); color: #fff; border: 1px solid rgba(255,255,255,.1); cursor: pointer; }
+.btn-cancel:hover { background: rgba(255,255,255,.1); }
+.btn-confirm { background: linear-gradient(135deg, #c62a47, #e94560); color: #fff; border: none; }
+.btn-confirm:hover { box-shadow: 0 8px 20px rgba(233,69,96,.5); }
+
+
+
+
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { min-height: 100%; font-family: 'DM Sans', sans-serif; background: #0d0b1a; color: #fff; }
+
+        @keyframes floatUp {
+            0% { transform: translateY(110vh) scale(.4); opacity: 0 }
+            8% { opacity: .45 }
+            92% { opacity: .15 }
+            100% { transform: translateY(-8vh) scale(1.2); opacity: 0 }
+        }
+        .orb {
+            position: fixed; border-radius: 50%; pointer-events: none; z-index: 0;
+            animation: floatUp linear infinite;
+            background: radial-gradient(circle at 40% 40%, rgba(233,69,96,.38), transparent 70%);
+        }
+
+        @keyframes gridDrift { to { background-position: 60px 60px } }
+        .grid-bg {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background-image: linear-gradient(rgba(233,69,96,.028) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(233,69,96,.028) 1px, transparent 1px);
+            background-size: 60px 60px; animation: gridDrift 8s linear infinite;
+        }
+
+        .sidebar {
+            position: fixed; top: 0; left: 0; height: 100vh; width: 260px;
+            background: linear-gradient(170deg, rgba(18,18,43,.97) 0%, rgba(15,52,96,.93) 100%);
+            backdrop-filter: blur(24px); border-right: 1px solid rgba(255,255,255,.06);
+            display: flex; flex-direction: column; padding: 28px 20px; z-index: 40; overflow-y: auto;
+        }
+
+        .nav-link {
+            display: flex; align-items: center; gap: 10px; color: rgba(255,255,255,.5);
+            border-radius: 11px; padding: 10px 14px; margin-bottom: 3px; text-decoration: none;
+            font-size: .85rem; transition: background .2s, color .2s, padding-left .2s;
+            position: relative; overflow: hidden;
+        }
+        .nav-link::before {
+            content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+            background: #e94560; border-radius: 0 3px 3px 0; transform: scaleY(0); transition: transform .2s;
+        }
+        .nav-link:hover { background: rgba(233,69,96,.1); color: #fff; padding-left: 18px; }
+        .nav-link:hover::before, .nav-link.active::before { transform: scaleY(1); }
+        .nav-link.active { background: rgba(233,69,96,.12); color: #fff; padding-left: 18px; }
+        .nav-link i { width: 16px; text-align: center; }
+
+        .glass {
+            background: rgba(255,255,255,.04); backdrop-filter: blur(18px);
+            border: 1px solid rgba(255,255,255,.08);
+        }
+
+        @keyframes gradientFlow { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+        .title-shimmer {
+            font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.85rem;
+            background: linear-gradient(90deg, #fff 0%, #ffb3c1 35%, #e94560 60%, #fff 100%);
+            background-size: 200% auto; -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent; background-clip: text;
+            animation: gradientFlow 4s ease infinite;
+        }
+
+        @keyframes btnShimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
+        .btn-add {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: linear-gradient(90deg, #c62a47, #e94560, #ff6b84, #e94560, #c62a47);
+            background-size: 300% auto; animation: btnShimmer 3s linear infinite;
+            color: #fff; border: none; border-radius: 12px; padding: 10px 22px;
+            font-family: 'Syne', sans-serif; font-weight: 700; font-size: .85rem;
+            text-decoration: none; transition: transform .2s, box-shadow .2s; cursor: pointer;
+        }
+        .btn-add:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(233,69,96,.5); }
+
+        .alert-ok {
+            background: rgba(46,204,113,.08); border: 1px solid rgba(46,204,113,.25);
+            border-radius: 12px; padding: 12px 16px; color: rgba(255,255,255,.7); font-size: .83rem; margin-bottom: 20px;
+        }
+
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
+        .anim { animation: fadeInUp .55s ease both; }
+        .d1 { animation-delay: .05s; } .d2 { animation-delay: .12s; } .d3 { animation-delay: .2s; }
+        .d4 { animation-delay: .28s; } .d5 { animation-delay: .36s; }
+
+        .live-dot { animation: liveDot 1.5s ease-in-out infinite; }
+        @keyframes liveDot { 0%,100% { opacity: 1; } 50% { opacity: .25; } }
+
+        .glow-line { height: 1px; border: none; background: linear-gradient(90deg, transparent, rgba(233,69,96,.3), transparent); margin: 14px 0; }
+        .sec-head { display: flex; align-items: center; gap: 10px; margin-bottom: 0; }
+        .sec-bar { width: 3px; height: 20px; border-radius: 99px; background: #e94560; }
+
+        .count-chip {
+            background: rgba(233,69,96,.12); color: #e94560; border: 1px solid rgba(233,69,96,.25);
+            border-radius: 999px; padding: 2px 11px; font-size: .7rem; font-weight: 700; font-family: 'Syne', sans-serif;
+        }
+
+        @keyframes pillPulse { 0%,100% { box-shadow: 0 0 0 rgba(233,69,96,0); } 50% { box-shadow: 0 0 14px rgba(233,69,96,.3); } }
+        .user-pill { animation: pillPulse 3s ease-in-out infinite; }
+
+        @keyframes cardEntrance { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+        .dept-card {
+            background: rgba(255,255,255,.03); backdrop-filter: blur(18px);
+            border: 1px solid rgba(255,255,255,.07); border-radius: 18px; padding: 20px;
+            transition: background .2s, transform .2s, border-color .2s, box-shadow .2s;
+            animation: cardEntrance .5s ease both; display: flex; flex-direction: column; height: 100%;
+        }
+        .dept-card:hover { background: rgba(233,69,96,.04); border-color: rgba(233,69,96,.18); transform: translateY(-3px); box-shadow: 0 12px 28px rgba(0,0,0,.4); }
+        .dept-card:nth-child(1) { animation-delay: .3s; }
+        .dept-card:nth-child(2) { animation-delay: .36s; }
+        .dept-card:nth-child(3) { animation-delay: .42s; }
+        .dept-card:nth-child(4) { animation-delay: .48s; }
+        .dept-card:nth-child(5) { animation-delay: .54s; }
+        .dept-card:nth-child(6) { animation-delay: .60s; }
+
+        .dept-name {
+            font-family: 'Syne', sans-serif; font-weight: 700; color: #fff; font-size: .95rem; line-height: 1.2;
+        }
+        .dept-code-badge {
+            font-size: .7rem; color: #e94560; background: rgba(233,69,96,.12); border: 1px solid rgba(233,69,96,.25);
+            border-radius: 6px; padding: 2px 8px; font-weight: 700; font-family: 'Syne', sans-serif; letter-spacing: .04em;
+        }
+        .dept-head-badge {
+            font-size: .7rem; color: #3a86ff; background: rgba(58,134,255,.1); border: 1px solid rgba(58,134,255,.2);
+            border-radius: 6px; padding: 2px 8px; font-weight: 600; font-family: 'Syne', sans-serif;
+        }
+        .dept-desc {
+            font-size: .78rem; color: rgba(255,255,255,.4); margin-top: 6px; line-height: 1.4; flex: 1;
+        }
+
+        .btn-edit-card {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 30px; height: 30px; border-radius: 8px; text-decoration: none; font-size: .7rem;
+            background: rgba(245,158,11,.12); color: #f59e0b; border: 1px solid rgba(245,158,11,.25);
+            transition: transform .2s, box-shadow .2s, background .2s;
+        }
+        .btn-edit-card:hover { background: rgba(245,158,11,.25); transform: scale(1.15); box-shadow: 0 4px 14px rgba(245,158,11,.3); color: #ffb84d; }
+
+        .btn-del-card {
+            display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+            background: rgba(233,69,96,.1); color: #e94560; border: 1px solid rgba(233,69,96,.22);
+            border-radius: 10px; padding: 7px 14px; font-size: .72rem; font-weight: 600;
+            font-family: 'Syne', sans-serif; text-decoration: none;
+            transition: background .2s, transform .2s, box-shadow .2s;
+        }
+        .btn-del-card:hover { background: rgba(233,69,96,.22); transform: scale(1.05); box-shadow: 0 4px 14px rgba(233,69,96,.35); color: #fff; }
+
+        .empty-state {
+            text-align: center; padding: 60px 20px; color: rgba(255,255,255,.18);
+            animation: fadeInUp .5s ease both; animation-delay: .4s;
+        }
+        .empty-state i { font-size: 2.8rem; color: rgba(233,69,96,.18); display: block; margin-bottom: 14px; }
+
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(233,69,96,.3); border-radius: 99px; }
+
+        @media(max-width:768px) { .sidebar { display: none; } .main-wrap { margin-left: 0 !important; } }
+    </style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+<!-- Floating Orbs -->
+<div class="orb" style="width:13px;height:13px;left:6%;animation-duration:17s;animation-delay:0s;"></div>
+<div class="orb" style="width:7px;height:7px;left:15%;animation-duration:23s;animation-delay:4s;opacity:.6"></div>
+<div class="orb" style="width:10px;height:10px;left:28%;animation-duration:13s;animation-delay:7s;"></div>
+<div class="orb" style="width:5px;height:5px;left:40%;animation-duration:20s;animation-delay:2s;opacity:.5"></div>
+<div class="orb" style="width:14px;height:14px;left:54%;animation-duration:10s;animation-delay:5s;"></div>
+<div class="orb" style="width:9px;height:9px;left:66%;animation-duration:18s;animation-delay:9s;"></div>
+<div class="orb" style="width:6px;height:6px;left:76%;animation-duration:14s;animation-delay:1s;opacity:.5"></div>
+<div class="orb" style="width:12px;height:12px;left:87%;animation-duration:21s;animation-delay:6s;"></div>
+<div class="orb" style="width:8px;height:8px;left:93%;animation-duration:16s;animation-delay:3s;"></div>
+
+<div class="flex relative z-10">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="mb-7 anim d1">
+            <p class="font-display font-extrabold text-xl text-white tracking-tight">⚙️ Admin <span style="color:#e94560">Panel</span></p>
+            <p class="text-white/25 text-xs mt-0.5">ABC Institute</p>
+        </div>
+
+        <div class="glass user-pill rounded-2xl px-4 py-3 mb-6 anim d2">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-full flex items-center justify-center font-display font-bold text-sm text-white" style="background:linear-gradient(135deg,#e94560,#c62a47)">A</div>
+                <div>
+                    <p class="text-white text-sm font-semibold font-display">Administrator</p>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-green-400 live-dot"></span>
+                        <p class="text-white/35 text-xs" th:text="${adminRole == 'SUPER_ADMIN'} ? 'Super Admin' : 'General Admin'">Super Admin</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <nav class="flex-1 anim d3">
+            <p class="text-white/20 text-xs uppercase tracking-widest font-display mb-3 px-2">Navigation</p>
+            <a href="/admin/dashboard" class="nav-link"><i class="fas fa-tachometer-alt"></i>Dashboard</a>
+            <a href="/admin/courses" class="nav-link"><i class="fas fa-book"></i>Courses</a>
+            <a href="/admin/lectures" class="nav-link"><i class="fas fa-chalkboard-teacher"></i>Lecturers</a>
+            <a href="/admin/departments" class="nav-link active"><i class="fas fa-building"></i>Departments</a>
+            <a href="/admin/students" class="nav-link"><i class="fas fa-users"></i>Students</a>
+            <a href="/admin/admins"   class="nav-link" th:if="${adminRole == 'SUPER_ADMIN'}"><i class="fas fa-user-shield"></i>Admins</a>
+        </nav>
+
+        <div class="anim d4">
+            <hr class="glow-line">
+            <a href="/logout" class="nav-link" style="color:rgba(233,69,96,.75)"><i class="fas fa-sign-out-alt"></i>Sign Out</a>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main-wrap flex-1 min-h-screen" style="margin-left:260px;padding:36px 36px 60px">
+
+        <!-- Header -->
+        <div class="flex justify-between items-start mb-8 anim d1">
+            <div>
+                <h1 class="title-shimmer leading-none mb-1">Department Management</h1>
+                <p class="text-white/35 text-sm font-body mt-2">Add, edit and remove academic departments</p>
+            </div>
+            <a href="/admin/departments/add" class="btn-add">
+                <i class="fas fa-plus text-xs"></i> Add Department
+            </a>
+        </div>
+
+        <!-- Success alert -->
+        <div th:if="${success}" class="alert-ok anim d2">
+            <i class="fas fa-check-circle mr-2" style="color:#2ecc71"></i>
+            <span th:text="${success}"></span>
+        </div>
+
+        <!-- Section heading with count -->
+        <div class="flex items-center justify-between mb-5 anim d2">
+            <div class="sec-head">
+                <div class="sec-bar"></div>
+                <h2 class="font-display font-bold text-white text-base">All Departments</h2>
+                <span class="count-chip" id="deptCount">— departments</span>
+            </div>
+        </div>
+
+        <!-- ── Department Cards Grid ────────────────────────────── -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="deptGrid">
+
+            <!-- Each department card -->
+            <div class="dept-card" th:each="dept : ${departments}">
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <span class="dept-code-badge" th:text="${dept.deptCode}">CODE</span>
+                        <h3 class="dept-name mt-1" th:text="${dept.deptName}">Department Name</h3>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 mb-2" th:if="${dept.headOfDept}">
+                    <span class="dept-head-badge"><i class="fas fa-user-tie mr-1"></i> <span th:text="${dept.headOfDept}"></span></span>
+                </div>
+
+                <p class="dept-desc" th:text="${dept.description != null ? dept.description : 'No description provided.'}">Description</p>
+
+                <!-- Action buttons (Edit + Delete) -->
+                <div class="flex items-center gap-2 mt-4 pt-3 border-t border-white/5">
+                    <a th:href="@{/admin/departments/edit/{id}(id=${dept.id})}" class="btn-edit-card" title="Edit department">
+                        <i class="fas fa-pen"></i>
+                    </a>
+                    <button type="button" class="btn-del-card"
+                            th:attr="onclick='openDeleteModal(\'' + ${dept.id} + '\', \'' + ${dept.deptName} + '\')'"
+                            title="Delete department">
+                        <i class="fas fa-trash text-xs"></i> Remove
+                    </button>
+                </div>
+            </div>
+
+            <!-- Empty state -->
+            <div class="col-span-full empty-state" th:if="${departments == null || departments.isEmpty()}">
+                <i class="fas fa-building"></i>
+                <p class="font-display text-sm">No departments added yet — create your first one!</p>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script>
+    (function() {
+        const cards = document.querySelectorAll('#deptGrid .dept-card');
+        const count = cards.length;
+        const chip = document.getElementById('deptCount');
+        if (chip) {
+            chip.textContent = count + (count === 1 ? ' department' : ' departments');
+        }
+    })();
+</script>
+<!-- ══ Delete Confirmation Modal ═══════════════════════════════════ -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal-box">
+        <i class="fas fa-exclamation-triangle"></i>
+        <p>
+            Are you sure you want to remove
+            this Department from ABC Institute?
+            <br>
+            <span style="color:rgba(233,69,96,.8); font-size:.75rem;">This process cannot be undone.</span>
+        </p>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeDeleteModal()">Cancel</button>
+            <a href="#" class="btn-confirm" id="confirmDeleteBtn">Yes, Delete</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Modal functions
+    function openDeleteModal(deptId, deptName) {
+        document.getElementById('confirmDeleteBtn').href = '/admin/departments/delete/' + deptId;
+        document.getElementById('deleteModal').classList.add('active');
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').classList.remove('active');
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) closeDeleteModal();
+    });
+</script>
+</body>
+</html>

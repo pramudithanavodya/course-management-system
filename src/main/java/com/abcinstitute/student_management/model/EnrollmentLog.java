@@ -1,3 +1,4 @@
+
 package com.abcinstitute.student_management.model;
 
 import jakarta.persistence.*;
@@ -23,7 +24,8 @@ public class EnrollmentLog {
     @Column(name = "enrolled_date")
     private LocalDateTime enrolledDate;
 
-    public EnrollmentLog() {}
+    public EnrollmentLog() {
+    }
 
     public EnrollmentLog(String studentUsername, String courseCode,
                          String courseName) {
@@ -34,18 +36,43 @@ public class EnrollmentLog {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
 
-    public String getStudentUsername() { return studentUsername; }
-    public void setStudentUsername(String u) { this.studentUsername = u; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public String getCourseCode() { return courseCode; }
-    public void setCourseCode(String c) { this.courseCode = c; }
+    public String getStudentUsername() {
+        return studentUsername;
+    }
 
-    public String getCourseName() { return courseName; }
-    public void setCourseName(String n) { this.courseName = n; }
+    public void setStudentUsername(String u) {
+        this.studentUsername = u;
+    }
 
-    public LocalDateTime getEnrolledDate() { return enrolledDate; }
-    public void setEnrolledDate(LocalDateTime d) { this.enrolledDate = d; }
+    public String getCourseCode() {
+        return courseCode;
+    }
+
+    public void setCourseCode(String c) {
+        this.courseCode = c;
+    }
+
+    public String getCourseName() {
+        return courseName;
+    }
+
+    public void setCourseName(String n) {
+        this.courseName = n;
+    }
+
+    public LocalDateTime getEnrolledDate() {
+        return enrolledDate;
+    }
+
+    public void setEnrolledDate(LocalDateTime d) {
+        this.enrolledDate = d;
+    }
 }

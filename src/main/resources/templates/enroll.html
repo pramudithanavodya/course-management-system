@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Enroll – ABC Institute</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+          theme: {
+            extend: {
+              colors: { crimson: '#e94560', navy: '#0f3460', mid: '#1a1a2e', deep: '#0d0b1a' },
+              fontFamily: { display: ['Syne','sans-serif'], body: ['DM Sans','sans-serif'] },
+            },
+          },
+        }
+    </script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { min-height: 100%; font-family: 'DM Sans', sans-serif; background: #0d0b1a; color: #fff; }
+
+        /* ── Floating orbs ───────────────── */
+        @keyframes floatUp {
+          0%   { transform: translateY(110vh) scale(0.4); opacity: 0; }
+          8%   { opacity: 0.5; }
+          92%  { opacity: 0.2; }
+          100% { transform: translateY(-8vh) scale(1.1);  opacity: 0; }
+        }
+        .orb {
+          position: fixed; border-radius: 50%; pointer-events: none; z-index: 0;
+          animation: floatUp linear infinite;
+          background: radial-gradient(circle at 40% 40%, rgba(233,69,96,0.35), transparent 70%);
+        }
+
+        /* ── Glass ───────────────────────── */
+        .glass {
+          background: rgba(255,255,255,0.04);
+          backdrop-filter: blur(20px);
+          border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        /* ── Course header banner ────────── */
+        .course-banner {
+          background: linear-gradient(135deg, rgba(26,26,46,0.9) 0%, rgba(15,52,96,0.85) 100%);
+          border: 1px solid rgba(255,255,255,0.1);
+          backdrop-filter: blur(16px);
+        }
+
+        /* ── Key input ───────────────────── */
+        .key-input {
+          background: rgba(255,255,255,0.05);
+          border: 1.5px solid rgba(255,255,255,0.1);
+          border-radius: 14px;
+          color: #fff;
+          font-family: 'Syne', monospace;
+          font-size: 1.3rem;
+          font-weight: 700;
+          letter-spacing: 6px;
+          text-align: center;
+          padding: 16px;
+          width: 100%;
+          outline: none;
+          transition: border-color .25s, box-shadow .25s;
+        }
+        .key-input::placeholder { color: rgba(255,255,255,0.2); letter-spacing: 3px; font-weight: 400; font-size: 1rem; }
+        .key-input:focus {
+          border-color: rgba(233,69,96,0.6);
+          box-shadow: 0 0 0 4px rgba(233,69,96,0.1), 0 0 24px rgba(233,69,96,0.15);
+        }
+
+        /* ── Buttons ─────────────────────── */
+        .btn-primary {
+          background: linear-gradient(135deg,#e94560,#c62a47);
+          color:#fff; border:none; border-radius:14px;
+          padding:14px; font-size:1rem; font-weight:700;
+          font-family:'Syne',sans-serif;
+          cursor:pointer; width:100%;
+          transition: transform .2s, box-shadow .2s;
+        }
+        .btn-primary:hover { transform:translateY(-2px); box-shadow:0 10px 30px rgba(233,69,96,0.4); }
+        .btn-primary:active { transform:translateY(0); }
+
+        .btn-back {
+          display:inline-flex; align-items:center; gap:8px;
+          color:rgba(255,255,255,0.45); font-size:.85rem;
+          text-decoration:none; border:1px solid rgba(255,255,255,0.1);
+          border-radius:999px; padding:7px 16px;
+          transition: color .2s, border-color .2s, background .2s;
+        }
+        .btn-back:hover { color:#fff; border-color:rgba(255,255,255,0.25); background:rgba(255,255,255,0.05); }
+
+        .btn-view {
+          display:inline-flex; align-items:center; gap:6px;
+          background:rgba(46,204,113,0.15); color:#2ecc71;
+          border:1px solid rgba(46,204,113,0.3); border-radius:999px;
+          padding:5px 14px; font-size:.78rem; font-weight:600;
+          text-decoration:none; transition:background .2s, box-shadow .2s;
+        }
+        .btn-view:hover { background:rgba(46,204,113,0.25); box-shadow:0 0 16px rgba(46,204,113,0.2); }
+
+        /* ── Badges ──────────────────────── */
+        .badge-code {
+          background:rgba(233,69,96,0.15); color:#e94560;
+          border:1px solid rgba(233,69,96,0.3);
+          border-radius:8px; padding:3px 10px; font-size:.7rem; font-weight:700;
+          font-family:'Syne',sans-serif; letter-spacing:.05em;
+        }
+
+        /* ── Alert info ──────────────────── */
+        .alert-info-box {
+          background: rgba(58,134,255,0.08);
+          border: 1px solid rgba(58,134,255,0.2);
+          border-radius: 12px; padding: 14px 16px;
+          color: rgba(255,255,255,0.65); font-size:.83rem; line-height:1.6;
+        }
+        .alert-info-box strong { color: #3a86ff; }
+
+        /* ── Alert success ───────────────── */
+        .alert-success-box {
+          background: rgba(46,204,113,0.08);
+          border: 1px solid rgba(46,204,113,0.25);
+          border-radius: 12px; padding: 16px;
+          color: rgba(255,255,255,0.7); font-size:.85rem;
+          display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+        }
+        .alert-success-box i { color:#2ecc71; font-size:1rem; }
+
+        /* ── Alert error ─────────────────── */
+        .alert-error-box {
+          background: rgba(233,69,96,0.08);
+          border: 1px solid rgba(233,69,96,0.25);
+          border-radius: 12px; padding: 14px 16px;
+          color: rgba(255,255,255,0.7); font-size:.83rem;
+        }
+        .alert-error-box i { color:#e94560; margin-right:8px; }
+
+        /* ── Glow pulse on banner ────────── */
+        @keyframes bannerGlow {
+          0%,100% { box-shadow: 0 0 30px rgba(15,52,96,0.5); }
+          50%      { box-shadow: 0 0 60px rgba(15,52,96,0.8), 0 0 20px rgba(233,69,96,0.1); }
+        }
+        .banner-glow { animation: bannerGlow 4s ease-in-out infinite; }
+
+        /* ── Staggered fade-in ───────────── */
+        @keyframes fadeInUp {
+          from { opacity:0; transform:translateY(24px); }
+          to   { opacity:1; transform:translateY(0); }
+        }
+        .anim  { animation: fadeInUp .55s ease both; }
+        .d1 { animation-delay:.05s; } .d2 { animation-delay:.15s; }
+        .d3 { animation-delay:.25s; } .d4 { animation-delay:.35s; }
+        .d5 { animation-delay:.45s; }
+
+        /* ── Key shimmer on focus ────────── */
+        @keyframes shimmer {
+          0%   { background-position: -200% center; }
+          100% { background-position:  200% center; }
+        }
+        .key-input:not(:placeholder-shown) {
+          background: linear-gradient(90deg, rgba(233,69,96,0.05), rgba(255,255,255,0.08), rgba(233,69,96,0.05));
+          background-size: 200% auto;
+          animation: shimmer 2.5s linear infinite;
+        }
+
+        /* ── Scrollbar ───────────────────── */
+        ::-webkit-scrollbar { width:5px; }
+        ::-webkit-scrollbar-track { background:transparent; }
+        ::-webkit-scrollbar-thumb { background:rgba(233,69,96,0.3); border-radius:99px; }
+    </style>
+</head>
+<body>
+
+<!-- ══ Floating Orbs ════════════════════════════════════════════ -->
+<div class="orb" style="width:13px;height:13px;left:6%;animation-duration:17s;animation-delay:0s;"></div>
+<div class="orb" style="width:7px;height:7px;left:15%;animation-duration:23s;animation-delay:4s;opacity:.6"></div>
+<div class="orb" style="width:10px;height:10px;left:27%;animation-duration:13s;animation-delay:7s;"></div>
+<div class="orb" style="width:5px;height:5px;left:38%;animation-duration:20s;animation-delay:2s;opacity:.5"></div>
+<div class="orb" style="width:15px;height:15px;left:51%;animation-duration:10s;animation-delay:5s;"></div>
+<div class="orb" style="width:9px;height:9px;left:62%;animation-duration:18s;animation-delay:9s;"></div>
+<div class="orb" style="width:6px;height:6px;left:74%;animation-duration:14s;animation-delay:1s;opacity:.5"></div>
+<div class="orb" style="width:12px;height:12px;left:85%;animation-duration:21s;animation-delay:6s;"></div>
+<div class="orb" style="width:8px;height:8px;left:93%;animation-duration:16s;animation-delay:3s;"></div>
+<div class="orb" style="width:11px;height:11px;left:44%;animation-duration:25s;animation-delay:11s;opacity:.4"></div>
+
+<!-- ══ Page ════════════════════════════════════════════════════ -->
+<div class="relative z-10 min-h-screen flex flex-col items-center justify-center px-4 py-12">
+
+    <!-- Institute label -->
+    <div class="anim d1 mb-6 text-center">
+        <p class="font-display font-extrabold text-xl text-white tracking-tight">
+            🎓 ABC <span style="color:#e94560">Institute</span>
+        </p>
+        <p class="text-white/25 text-xs mt-0.5">Course Enrollment Portal</p>
+    </div>
+
+    <!-- Card -->
+    <div class="glass rounded-3xl w-full max-w-lg overflow-hidden anim d2">
+
+        <!-- ── Course Banner ─────────────────────────────────── -->
+        <div class="course-banner banner-glow p-7 relative overflow-hidden">
+            <!-- Decorative ring -->
+            <div class="absolute -right-10 -top-10 w-40 h-40 rounded-full"
+                 style="background:rgba(233,69,96,0.06);border:1px solid rgba(233,69,96,0.1)"></div>
+            <div class="absolute -right-4 -bottom-8 w-24 h-24 rounded-full"
+                 style="background:rgba(15,52,96,0.4);border:1px solid rgba(255,255,255,0.05)"></div>
+
+            <div class="relative z-10">
+                <span class="badge-code" th:text="${course.courseCode}">CODE</span>
+                <h2 class="font-display font-extrabold text-2xl text-white mt-3 mb-4 leading-tight"
+                    th:text="${course.courseName}">Course Name</h2>
+                <div class="flex gap-5 text-sm text-white/55">
+          <span class="flex items-center gap-2">
+            <i class="fas fa-clock" style="color:#e94560"></i>
+            <span th:text="${course.lectureHoursPerWeek}">0</span> hrs/week
+          </span>
+                    <span class="flex items-center gap-2">
+            <i class="fas fa-tag" style="color:#3a86ff"></i>
+            LKR <span th:text="${course.courseFee}">0</span>
+          </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Body ──────────────────────────────────────────── -->
+        <div class="p-7 flex flex-col gap-5">
+
+            <!-- Already enrolled -->
+            <div th:if="${alreadyEnrolled}" class="alert-success-box anim d3">
+                <i class="fas fa-check-circle"></i>
+                <span class="flex-1">You are already enrolled in this course!</span>
+                <a th:href="@{/course-content/{id}(id=${course.id})}" class="btn-view">
+                    <i class="fas fa-play-circle"></i> View Content
+                </a>
+            </div>
+
+            <!-- Not enrolled -->
+            <div th:unless="${alreadyEnrolled}" class="flex flex-col gap-5">
+
+                <!-- Error alert -->
+                <div th:if="${error}" class="alert-error-box anim d3">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span th:text="${error}">Error message</span>
+                </div>
+
+                <!-- Info box -->
+                <div class="alert-info-box anim d3">
+                    <i class="fas fa-info-circle mr-2" style="color:#3a86ff"></i>
+                    <strong>How to enroll:</strong> Send your payment receipt to the institute. We will deliver your unique enrollment key to your registered phone number within 24 hours.
+                </div>
+
+                <!-- Form -->
+                <div class="anim d4">
+                    <p class="font-display font-bold text-white text-base mb-4">Enter Enrollment Key</p>
+                    <form method="post" th:action="@{/enroll/{id}(id=${course.id})}">
+                        <div class="mb-2">
+                            <input
+                                    type="text"
+                                    class="key-input"
+                                    name="enrollmentKey"
+                                    placeholder="e.g. JAVA2025"
+                                    autocomplete="off"
+                                    required
+                            />
+                        </div>
+                        <p class="text-white/25 text-xs text-center mb-5">Key is sent to your registered mobile after payment confirmation</p>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-key mr-2"></i>Confirm Enrollment
+                        </button>
+                    </form>
+                </div>
+
+            </div><!-- end not enrolled -->
+
+        </div><!-- end body -->
+    </div><!-- end card -->
+
+    <!-- Back link -->
+    <div class="mt-6 anim d5">
+        <a href="/dashboard" class="btn-back">
+            <i class="fas fa-arrow-left text-xs"></i> Back to Dashboard
+        </a>
+    </div>
+
+</div><!-- end page -->
+
+</body>
+</html>
