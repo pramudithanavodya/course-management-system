@@ -30,25 +30,25 @@ public class StudentController {
 
 
     @GetMapping("/dashboard")  /// When someone visits /dashboard, run this method.
-    public String dashboard(HttpSession session, Model model) {
+    public String dashboard(HttpSession httpsession, Model model) {
 
-        ///  Who is currently logged in (stored in session)
-        String username = (String) session.getAttribute("loggedInUser");
+        ///  Who is currently logged in (stored in httpsession)
+        String username = (String) httpsession.getAttribute("loggedInUser");
 
         ///  If not logged in → send to login page
         if (username == null) return "redirect:/login";
 
-        /// Model is an interface in Spring MVC.
+        /// "model" is an interface in Spring MVC.
         /// It is used to: Carry data from Java (backend) → HTML page (frontend)
-        /// addAttribute() is a method inside the Model interface Provided by Spring
+        /// addAttribute() is a method inside the model interface Provided by Spring
         /// Store data in Model using a key-value pair
 
         model.addAttribute("username", username);
 
-        /// Go to CourseService.java and get all courses from database (or list)
+        /// Go to courseService.java and get all courses from database (or list)
         model.addAttribute("allCourses", courseService.getAllCourses());
 
-        /// Go to enrollmentService.java and Get only the courses this specific user is enrolled in
+        /// Go to enrollmentService.java and Get only the courses this specific user enrolled in
         model.addAttribute("enrolledCourses", enrollmentService.getEnrolledCourses(username));
 
         return "dashboard";

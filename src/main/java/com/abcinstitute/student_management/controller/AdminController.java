@@ -186,7 +186,7 @@ public class AdminController {
         return "redirect:/admin/departments";
     }
 
-    // ─────────────── STUDENTS (read from file) ───────────────
+
     @GetMapping("/students")
     public String listStudents(HttpSession session, Model model) {
         if (!isAdmin(session)) return "redirect:/admin-login";
@@ -311,91 +311,10 @@ public class AdminController {
             }
             student.setPassword(newPassword);
         }
+
         studentService.updateStudent(student);
         ra.addFlashAttribute("success", "Student '" + username + "' updated successfully.");
         return "redirect:/admin/students";
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // ─────────────── ADMINS MANAGEMENT (Super Admin Only) ──────────
-    // ═══════════════════════════════════════════════════════════════
-
-    @GetMapping("/admins")
-    public String listAdmins(HttpSession session, Model model) {
-        if (!isAdmin(session)) return "redirect:/admin-login";
-        if (!isSuperAdmin(session)) return "redirect:/admin/dashboard";
-        model.addAttribute("admins", adminService.getAllAdmins());
-        addCommonAttributes(session, model);
-        return "admin/admins";
-    }
-
-    @GetMapping("/admins/add")
-    public String addAdminForm(HttpSession session, Model model) {
-        if (!isAdmin(session)) return "redirect:/admin-login";
-        if (!isSuperAdmin(session)) return "redirect:/admin/dashboard";
-        addCommonAttributes(session, model);
-        return "admin/add-admin";
-    }
-
-    @PostMapping("/admins/add")
-    public String saveAdmin(@RequestParam String username,
-                            @RequestParam String password,
-                            @RequestParam String email,
-                            HttpSession session,
-                            RedirectAttributes ra) {
-        if (!isAdmin(session)) return "redirect:/admin-login";
-        if (!isSuperAdmin(session)) return "redirect:/admin/dashboard";
-        Admin newAdmin = new Admin(username, password, email, "ADMIN");
-        boolean saved = adminService.saveAdmin(newAdmin);
-        if (saved) {
-            ra.addFlashAttribute("success", "Admin '" + username + "' created successfully!");
-        } else {
-            ra.addFlashAttribute("error", "Username already taken. Choose another.");
-        }
-        return "redirect:/admin/admins";
-    }
-
-    @GetMapping("/admins/edit/{id}")
-    public String editAdminForm(@PathVariable Long id, HttpSession session, Model model) {
-        if (!isAdmin(session)) return "redirect:/admin-login";
-        if (!isSuperAdmin(session)) return "redirect:/admin/dashboard";
-        Admin admin = adminService.findById(id).orElse(null);
-        if (admin == null) return "redirect:/admin/admins";
-        // Super admin CAN be edited (but not deleted) — no redirect here
-        model.addAttribute("adminUser", admin);
-        addCommonAttributes(session, model);
-        return "admin/edit-admin";
-    }
-
-    @PostMapping("/admins/edit/{id}")
-    public String updateAdmin(@PathVariable Long id,
-                              @RequestParam String username,
-                              @RequestParam(required = false) String newPassword,
-                              @RequestParam String email,
-                              HttpSession session,
-                              RedirectAttributes ra) {
-        if (!isAdmin(session)) return "redirect:/admin-login";
-        if (!isSuperAdmin(session)) return "redirect:/admin/dashboard";
-        boolean updated = adminService.updateAdmin(id, username, newPassword, email);
-        if (updated) {
-            ra.addFlashAttribute("success", "Admin updated successfully.");
-        } else {
-            ra.addFlashAttribute("error", "Could not update admin (username may already be taken).");
-        }
-        return "redirect:/admin/admins";
-    }
-
-    @GetMapping("/admins/delete/{id}")
-    public String deleteAdmin(@PathVariable Long id, HttpSession session, RedirectAttributes ra) {
-        if (!isAdmin(session)) return "redirect:/admin-login";
-        if (!isSuperAdmin(session)) return "redirect:/admin/dashboard";
-        boolean deleted = adminService.deleteAdmin(id);
-        if (deleted) {
-            ra.addFlashAttribute("success", "Admin deleted successfully.");
-        } else {
-            ra.addFlashAttribute("error", "Cannot delete this admin (may be super admin).");
-        }
-        return "redirect:/admin/admins";
-    }
 }
-
