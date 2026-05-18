@@ -1,3 +1,4 @@
+
 package com.abcinstitute.student_management.service;
 
 import com.abcinstitute.student_management.model.Course;
@@ -8,6 +9,7 @@ import com.abcinstitute.student_management.repository.EnrollmentLogRepository;
 import com.abcinstitute.student_management.repository.EnrollmentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -64,5 +66,14 @@ public class EnrollmentService {
     public boolean isEnrolled(String username, Long courseId) {
         return enrollmentRepository
                 .existsByStudentUsernameAndCourseId(username, courseId);
+    }
+    // ✅ ADD THIS METHOD at the bottom of EnrollmentService class
+    @Transactional
+    public boolean unenrollStudent(String username, Long courseId) {
+        if (!enrollmentRepository.existsByStudentUsernameAndCourseId(username, courseId)) {
+            return false; // not enrolled, nothing to delete
+        }
+        enrollmentRepository.deleteByStudentUsernameAndCourseId(username, courseId);
+        return true;
     }
 }
