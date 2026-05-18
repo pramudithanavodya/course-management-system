@@ -165,11 +165,160 @@ public class AdminController {
         return "redirect:/admin/departments";
     }
 
-    // ─────────────── STUDENTS (read from file) ───────────────
+
     @GetMapping("/students")
     public String listStudents(HttpSession session, Model model) {
         if (!isAdmin(session)) return "redirect:/admin-login";
         model.addAttribute("students", studentService.getAllStudents());
         return "admin/students";
     }
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////// LECTURES EDIT METHODS
+    ///
+    // ─────────────── EDIT LECTURER ───────────────
+    @GetMapping("/lectures/edit/{id}")
+    public String editLecturerForm(@PathVariable Long id, HttpSession session, Model model) {
+        if (!isAdmin(session)) return "redirect:/admin-login";
+
+        Lecture lecture = lectureRepository.findById(id).orElse(null);
+        if (lecture == null) return "redirect:/admin/lectures";
+
+        model.addAttribute("lecture", lecture);
+        model.addAttribute("departments", departmentRepository.findAll());
+        return "admin/edit-lecture";
+    }
+
+    @PostMapping("/lectures/edit/{id}")
+    public String updateLecturer(@PathVariable Long id,
+                                 @RequestParam String lecturerName,
+                                 @RequestParam String email,
+                                 @RequestParam String phone,
+                                 @RequestParam Long departmentId,
+                                 HttpSession session,
+                                 RedirectAttributes ra) {
+        if (!isAdmin(session)) return "redirect:/admin-login";
+
+        Lecture lecture = lectureRepository.findById(id).orElse(null);
+        if (lecture == null) return "redirect:/admin/lectures";
+
+        lecture.setLecturerName(lecturerName);
+        lecture.setEmail(email);
+        lecture.setPhone(phone);
+
+        departmentRepository.findById(departmentId).ifPresent(lecture::setDepartment);
+        lectureRepository.save(lecture);
+
+        ra.addFlashAttribute("success", "Lecturer updated successfully.");
+        return "redirect:/admin/lectures";
+    }
+
+    // GET: Show edit department form
+    @GetMapping("/departments/edit/{id}")
+    public String editDeptForm(@PathVariable Long id, HttpSession session, Model model) {
+        if (!isAdmin(session)) return "redirect:/admin-login";
+
+        Department dept = departmentRepository.findById(id).orElse(null);
+        if (dept == null) return "redirect:/admin/departments";
+
+        model.addAttribute("department", dept);
+        return "admin/edit-department";
+    }
+
+    /// //////////// EDIT DEPARTMENT BUTTON
+    //////////////// POST: Process department update
+
+    @PostMapping("/departments/edit/{id}")
+    public String updateDept(@PathVariable Long id,
+                             @RequestParam String deptName,
+                             @RequestParam String deptCode,
+                             @RequestParam String description,
+                             @RequestParam String headOfDept,
+                             HttpSession session,
+                             RedirectAttributes ra) {
+        if (!isAdmin(session)) return "redirect:/admin-login";
+
+        Department dept = departmentRepository.findById(id).orElse(null);
+        if (dept == null) return "redirect:/admin/departments";
+
+        dept.setDeptName(deptName);
+        dept.setDeptCode(deptCode);
+        dept.setDescription(description);
+        dept.setHeadOfDept(headOfDept);
+
+        departmentRepository.save(dept);
+        ra.addFlashAttribute("success", "Department updated successfully.");
+        return "redirect:/admin/departments";
+    }
+
+    ///// MAPPING...TO ADD DEPARTMENT
+    @GetMapping("/departments/add")
+    public String addDeptForm(HttpSession session) {
+        if (!isAdmin(session)) return "redirect:/admin-login";
+        return "admin/add-department";   // points to templates/admin/add-department.html
+    }
+
+
+    /// // delete student method
+    @GetMapping("/students/delete/{username}")
+    public String deleteStudent(@PathVariable String username, HttpSession session, RedirectAttributes ra) {
+        if (!isAdmin(session)) return "redirect:/admin-login";
+
+        boolean deleted = studentService.deleteStudent(username);
+        if (deleted) {
+            ra.addFlashAttribute("success", "Student '" + username + "' has been removed.");
+        } else {
+            ra.addFlashAttribute("error", "Unable to delete student. They may not exist.");
+        }
+        return "redirect:/admin/students";
+    }
+
+    ////////// EDIT STUDENT METHODS
+    // GET: Show edit student form
+    @GetMapping("/students/edit/{username}")
+    public String editStudentForm(@PathVariable String username, HttpSession session, Model model) {
+        if (!isAdmin(session)) return "redirect:/admin-login";
+
+        Student student = studentService.findByUsername(username).orElse(null);
+        if (student == null) return "redirect:/admin/students";
+
+        model.addAttribute("student", student);
+        return "admin/edit-student";
+    }
+
+    // POST: Process student edit
+    @PostMapping("/students/edit/{username}")
+    public String updateStudent(@PathVariable String username,
+                                @RequestParam String fullName,
+                                @RequestParam String email,
+                                @RequestParam String phone,
+                                @RequestParam(required = false) String newPassword,
+                                @RequestParam(required = false) String confirmPassword,
+                                HttpSession session,
+                                RedirectAttributes ra) {
+        if (!isAdmin(session)) return "redirect:/admin-login";
+
+        Student student = studentService.findByUsername(username).orElse(null);
+        if (student == null) return "redirect:/admin/students";
+
+        // Update non-sensitive fields
+        student.setFullName(fullName);
+        student.setEmail(email);
+        student.setPhone(phone);
+
+        // Update password only if provided and matching
+        if (newPassword != null && !newPassword.trim().isEmpty()) {
+            if (!newPassword.equals(confirmPassword)) {
+                ra.addFlashAttribute("error", "Passwords do not match!");
+                return "redirect:/admin/students/edit/" + username;
+            }
+            student.setPassword(newPassword);
+        }
+
+        studentService.updateStudent(student);
+        ra.addFlashAttribute("success", "Student '" + username + "' updated successfully.");
+        return "redirect:/admin/students";
+    }
+
 }

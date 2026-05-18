@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Student – Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        crimson: '#e94560',
+                        navy: '#0f3460',
+                        mid: '#1a1a2e',
+                        deep: '#0d0b1a'
+                    },
+                    fontFamily: {
+                        display: ['Syne', 'sans-serif'],
+                        body: ['DM Sans', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { min-height: 100%; font-family: 'DM Sans', sans-serif; background: #0d0b1a; color: #fff; }
+
+        @keyframes floatUp {
+            0% { transform: translateY(110vh) scale(.4); opacity: 0 }
+            8% { opacity: .45 }
+            92% { opacity: .15 }
+            100% { transform: translateY(-8vh) scale(1.2); opacity: 0 }
+        }
+        .orb {
+            position: fixed; border-radius: 50%; pointer-events: none; z-index: 0;
+            animation: floatUp linear infinite;
+            background: radial-gradient(circle at 40% 40%, rgba(233,69,96,.38), transparent 70%);
+        }
+
+        @keyframes gridDrift { to { background-position: 60px 60px } }
+        .grid-bg {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background-image: linear-gradient(rgba(233,69,96,.028) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(233,69,96,.028) 1px, transparent 1px);
+            background-size: 60px 60px; animation: gridDrift 8s linear infinite;
+        }
+
+        .sidebar {
+            position: fixed; top: 0; left: 0; height: 100vh; width: 260px;
+            background: linear-gradient(170deg, rgba(18,18,43,.97) 0%, rgba(15,52,96,.93) 100%);
+            backdrop-filter: blur(24px); border-right: 1px solid rgba(255,255,255,.06);
+            display: flex; flex-direction: column; padding: 28px 20px; z-index: 40; overflow-y: auto;
+        }
+
+        .nav-link {
+            display: flex; align-items: center; gap: 10px; color: rgba(255,255,255,.5);
+            border-radius: 11px; padding: 10px 14px; margin-bottom: 3px; text-decoration: none;
+            font-size: .85rem; transition: background .2s, color .2s, padding-left .2s;
+            position: relative; overflow: hidden;
+        }
+        .nav-link::before {
+            content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+            background: #e94560; border-radius: 0 3px 3px 0; transform: scaleY(0); transition: transform .2s;
+        }
+        .nav-link:hover { background: rgba(233,69,96,.1); color: #fff; padding-left: 18px; }
+        .nav-link:hover::before, .nav-link.active::before { transform: scaleY(1); }
+        .nav-link.active { background: rgba(233,69,96,.12); color: #fff; padding-left: 18px; }
+        .nav-link i { width: 16px; text-align: center; }
+
+        .glass {
+            background: rgba(255,255,255,.04); backdrop-filter: blur(18px);
+            border: 1px solid rgba(255,255,255,.08);
+        }
+
+        @keyframes gradientFlow { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+        .title-shimmer {
+            font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.85rem;
+            background: linear-gradient(90deg, #fff 0%, #ffb3c1 35%, #e94560 60%, #fff 100%);
+            background-size: 200% auto; -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent; background-clip: text;
+            animation: gradientFlow 4s ease infinite;
+        }
+
+        @keyframes btnShimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
+        .btn-save {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: linear-gradient(90deg, #c62a47, #e94560, #ff6b84, #e94560, #c62a47);
+            background-size: 300% auto; animation: btnShimmer 3s linear infinite;
+            color: #fff; border: none; border-radius: 12px; padding: 10px 24px;
+            font-family: 'Syne', sans-serif; font-weight: 700; font-size: .85rem;
+            cursor: pointer; transition: transform .2s, box-shadow .2s;
+        }
+        .btn-save:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(233,69,96,.5); }
+
+        .btn-cancel {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+            border-radius: 12px; padding: 10px 22px; font-family: 'Syne', sans-serif;
+            font-weight: 700; font-size: .85rem; color: rgba(255,255,255,.7);
+            text-decoration: none; transition: background .2s, color .2s, border-color .2s;
+        }
+        .btn-cancel:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.2); color: #fff; }
+
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
+        .anim { animation: fadeInUp .55s ease both; }
+        .d1 { animation-delay: .05s; } .d2 { animation-delay: .12s; } .d3 { animation-delay: .2s; }
+        .d4 { animation-delay: .28s; } .d5 { animation-delay: .36s; }
+
+        .live-dot { animation: liveDot 1.5s ease-in-out infinite; }
+        @keyframes liveDot { 0%,100% { opacity: 1; } 50% { opacity: .25; } }
+
+        .glow-line { height: 1px; border: none; background: linear-gradient(90deg, transparent, rgba(233,69,96,.3), transparent); margin: 14px 0; }
+
+        .form-label {
+            font-family: 'Syne', sans-serif; font-size: .72rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: .06em; color: rgba(255,255,255,.45);
+            display: block; margin-bottom: 6px;
+        }
+        .form-input, .form-select {
+            width: 100%; background: rgba(255,255,255,.04); border: 2px solid rgba(255,255,255,.08);
+            border-radius: 10px; padding: 10px 14px; color: #fff; font-family: 'DM Sans', sans-serif;
+            font-size: .83rem; outline: none; transition: border-color .25s, background .25s, box-shadow .25s;
+        }
+        .form-input:focus, .form-select:focus {
+            border-color: #e94560; background: rgba(233,69,96,.04); box-shadow: 0 0 0 4px rgba(233,69,96,.07);
+        }
+        .form-input.readonly {
+            background: rgba(255,255,255,.02); color: rgba(255,255,255,.4); cursor: not-allowed;
+        }
+        .form-select option { background: #1a1a2e; color: #fff; }
+
+        .sec-head { display: flex; align-items: center; gap: 10px; margin-bottom: 0; }
+        .sec-bar { width: 3px; height: 20px; border-radius: 99px; background: #e94560; }
+
+        @keyframes pillPulse { 0%,100% { box-shadow: 0 0 0 rgba(233,69,96,0); } 50% { box-shadow: 0 0 14px rgba(233,69,96,.3); } }
+        .user-pill { animation: pillPulse 3s ease-in-out infinite; }
+
+        /* ══ Warning Banner ═══════════════════════════════════════ */
+        .warning-banner {
+            background: rgba(233,69,96,.08); border: 1px solid rgba(233,69,96,.35);
+            border-left: 4px solid #e94560; border-radius: 14px;
+            padding: 16px 20px; margin-bottom: 24px;
+            animation: fadeInUp .5s ease both; animation-delay: .3s;
+        }
+        .warning-banner .warning-icon {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: rgba(233,69,96,.15); display: flex;
+            align-items: center; justify-content: center;
+            color: #e94560; font-size: 1.1rem;
+        }
+        .warning-banner .warning-title {
+            font-family: 'Syne', sans-serif; font-weight: 800; font-size: .8rem;
+            text-transform: uppercase; letter-spacing: .04em;
+            color: #e94560; margin-bottom: 6px;
+        }
+        .warning-banner .warning-text {
+            color: rgba(233,69,96,.7); font-size: .78rem;
+            line-height: 1.5; font-weight: 500;
+        }
+
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(233,69,96,.3); border-radius: 99px; }
+
+        @media(max-width:768px) { .sidebar { display: none; } .main-wrap { margin-left: 0 !important; } }
+    </style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+<!-- Floating Orbs -->
+<div class="orb" style="width:13px;height:13px;left:6%;animation-duration:17s;animation-delay:0s;"></div>
+<div class="orb" style="width:7px;height:7px;left:15%;animation-duration:23s;animation-delay:4s;opacity:.6"></div>
+<div class="orb" style="width:10px;height:10px;left:28%;animation-duration:13s;animation-delay:7s;"></div>
+<div class="orb" style="width:5px;height:5px;left:40%;animation-duration:20s;animation-delay:2s;opacity:.5"></div>
+<div class="orb" style="width:14px;height:14px;left:54%;animation-duration:10s;animation-delay:5s;"></div>
+<div class="orb" style="width:9px;height:9px;left:66%;animation-duration:18s;animation-delay:9s;"></div>
+<div class="orb" style="width:6px;height:6px;left:76%;animation-duration:14s;animation-delay:1s;opacity:.5"></div>
+<div class="orb" style="width:12px;height:12px;left:87%;animation-duration:21s;animation-delay:6s;"></div>
+<div class="orb" style="width:8px;height:8px;left:93%;animation-duration:16s;animation-delay:3s;"></div>
+<div class="orb" style="width:11px;height:11px;left:46%;animation-duration:25s;animation-delay:11s;opacity:.4"></div>
+<div class="orb" style="width:6px;height:6px;left:22%;animation-duration:19s;animation-delay:13s;opacity:.5"></div>
+<div class="orb" style="width:9px;height:9px;left:80%;animation-duration:12s;animation-delay:8s;"></div>
+
+<div class="flex relative z-10">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="mb-7 anim d1">
+            <p class="font-display font-extrabold text-xl text-white tracking-tight">⚙️ Admin <span style="color:#e94560">Panel</span></p>
+            <p class="text-white/25 text-xs mt-0.5">ABC Institute</p>
+        </div>
+
+        <div class="glass user-pill rounded-2xl px-4 py-3 mb-6 anim d2">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-full flex items-center justify-center font-display font-bold text-sm text-white" style="background:linear-gradient(135deg,#e94560,#c62a47)">A</div>
+                <div>
+                    <p class="text-white text-sm font-semibold font-display">Administrator</p>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-green-400 live-dot"></span>
+                        <p class="text-white/35 text-xs">Super Admin</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <nav class="flex-1 anim d3">
+            <p class="text-white/20 text-xs uppercase tracking-widest font-display mb-3 px-2">Navigation</p>
+            <a href="/admin/dashboard" class="nav-link"><i class="fas fa-tachometer-alt"></i>Dashboard</a>
+            <a href="/admin/courses" class="nav-link"><i class="fas fa-book"></i>Courses</a>
+            <a href="/admin/lectures" class="nav-link"><i class="fas fa-chalkboard-teacher"></i>Lecturers</a>
+            <a href="/admin/departments" class="nav-link"><i class="fas fa-building"></i>Departments</a>
+            <a href="/admin/students" class="nav-link active"><i class="fas fa-users"></i>Students</a>
+        </nav>
+
+        <div class="anim d4">
+            <hr class="glow-line">
+            <a href="/logout" class="nav-link" style="color:rgba(233,69,96,.75)"><i class="fas fa-sign-out-alt"></i>Sign Out</a>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main-wrap flex-1 min-h-screen" style="margin-left:260px;padding:36px 36px 60px">
+
+        <div class="flex items-center justify-between mb-6 anim d1">
+            <div>
+                <h1 class="title-shimmer leading-none mb-1">Edit Student</h1>
+                <p class="text-white/35 text-sm font-body mt-2">Modify student account details</p>
+            </div>
+            <a href="/admin/students" class="btn-cancel">
+                <i class="fas fa-arrow-left text-xs"></i> Back to Students
+            </a>
+        </div>
+
+        <!-- ══ Security Warning Banner ═══════════════════════════════════ -->
+        <div class="warning-banner anim d2">
+            <div class="flex items-start gap-3">
+                <div class="warning-icon">
+                    <i class="fas fa-shield-halved"></i>
+                </div>
+                <div>
+                    <p class="warning-title">
+                        ⚠ Administrative Warning !
+                    </p>
+                    <p class="warning-text">
+                        Changing sensitive account information may affect user login access and overall account security.
+                        Editing passwords and other sensitive details is strongly discouraged unless it is an emergency
+                        situation, the user has lost account access, or the user has explicitly requested the change.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Card -->
+        <div class="glass rounded-2xl p-8 max-w-2xl anim d3">
+            <form method="post" th:action="@{/admin/students/edit/{username}(username=${student.username})}">
+                <div class="space-y-5">
+                    <!-- Username (readonly) -->
+                    <div>
+                        <label class="form-label">Username <span class="text-white/30 text-xs ml-1">(cannot be changed)</span></label>
+                        <input type="text" class="form-input readonly" th:value="${student.username}" readonly>
+                    </div>
+
+                    <!-- Full Name -->
+                    <div>
+                        <label class="form-label">Full Name <span style="color:#e94560">*</span></label>
+                        <input type="text" class="form-input" name="fullName" th:value="${student.fullName}" required>
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-input" name="email" th:value="${student.email}" required>
+                    </div>
+
+                    <!-- Phone -->
+                    <div>
+                        <label class="form-label">Phone</label>
+                        <input type="text" class="form-input" name="phone" th:value="${student.phone}">
+                    </div>
+
+                    <!-- Password (optional, highly discouraged) -->
+                    <div class="border-t border-white/5 pt-6 mt-6">
+                        <p class="form-label mb-4">Change Password <span style="color:#e94560; font-size:.7rem;">(Security-Controlled Action)</span></p>
+                        <div class="mb-4">
+                            <label class="form-label text-xs">New Password</label>
+                            <input type="password" class="form-input" name="newPassword" placeholder="Leave blank to keep current">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label text-xs">Confirm New Password</label>
+                            <input type="password" class="form-input" name="confirmPassword" placeholder="Re-enter new password">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="flex items-center gap-4 mt-8 pt-6 border-t border-white/5">
+                    <button type="submit" class="btn-save">
+                        <i class="fas fa-save text-xs"></i> Save Changes
+                    </button>
+                    <a href="/admin/students" class="btn-cancel">Cancel</a>
+                </div>
+            </form>
+        </div>
+
+    </main>
+</div>
+</body>
+</html>
