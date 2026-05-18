@@ -39,7 +39,6 @@
           border: 1px solid rgba(255,255,255,0.07);
           position: relative; overflow: hidden;
         }
-        /* moving radial sweep */
         @keyframes heroSweep {
           0%   { transform: translate(-30%, -30%) scale(1);   opacity: .25; }
           50%  { transform: translate( 10%,  10%) scale(1.4); opacity: .4;  }
@@ -248,6 +247,115 @@
           background: linear-gradient(90deg, transparent, #e94560, transparent);
           animation: progressShimmer 1.8s ease infinite;
         }
+
+        /* ══ Unenroll button ═══════════════════════════════════ */
+        .btn-unenroll {
+          width: 100%;
+          display: flex; align-items: center; justify-content: center; gap: 8px;
+          margin-top: 18px;
+          padding: 10px 0;
+          border-radius: 14px;
+          font-family: 'Syne', sans-serif;
+          font-weight: 700;
+          font-size: .82rem;
+          letter-spacing: .04em;
+          color: rgba(255,255,255,0.65);
+          background: rgba(0,0,0,0.25);
+          border: 1.5px solid rgba(255,255,255,0.18);
+          cursor: pointer;
+          transition: background .25s, border-color .25s, color .25s, transform .2s, box-shadow .25s;
+          position: relative;
+          overflow: hidden;
+        }
+        .btn-unenroll::before {
+          content: '';
+          position: absolute; inset: 0;
+          background: rgba(255,255,255,0.04);
+          opacity: 0;
+          transition: opacity .2s;
+        }
+        .btn-unenroll:hover {
+          background: rgba(0,0,0,0.45);
+          border-color: rgba(255,255,255,0.35);
+          color: #fff;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+        }
+        .btn-unenroll:hover::before { opacity: 1; }
+        .btn-unenroll:active { transform: translateY(0); }
+
+        /* ══ Flash messages ════════════════════════════════════ */
+        .flash-success {
+          padding: 12px 16px; border-radius: 12px; margin-bottom: 20px;
+          background: rgba(46,204,113,0.1); border: 1px solid rgba(46,204,113,0.25);
+          color: #2ecc71; font-size: .85rem; font-weight: 600;
+          display: flex; align-items: center; gap: 10px;
+          animation: fadeInUp .4s ease both;
+        }
+        .flash-error {
+          padding: 12px 16px; border-radius: 12px; margin-bottom: 20px;
+          background: rgba(233,69,96,0.1); border: 1px solid rgba(233,69,96,0.25);
+          color: #e94560; font-size: .85rem; font-weight: 600;
+          display: flex; align-items: center; gap: 10px;
+          animation: fadeInUp .4s ease both;
+        }
+
+        /* ══ Modal overlay ═════════════════════════════════════ */
+        .modal-overlay {
+          position: fixed; inset: 0; z-index: 999;
+          background: rgba(0,0,0,0.7);
+          backdrop-filter: blur(6px);
+          display: flex; align-items: center; justify-content: center;
+          opacity: 0; pointer-events: none;
+          transition: opacity .3s ease;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+        .modal-box {
+          background: #1a1a2e;
+          border: 1px solid rgba(233,69,96,0.3);
+          border-radius: 24px;
+          padding: 32px 28px;
+          max-width: 380px; width: 90%;
+          text-align: center;
+          transform: scale(0.88) translateY(20px);
+          transition: transform .35s ease;
+          box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+        }
+        .modal-overlay.active .modal-box { transform: scale(1) translateY(0); }
+        .modal-icon {
+          width: 60px; height: 60px; border-radius: 50%;
+          background: rgba(233,69,96,0.1); border: 2px solid rgba(233,69,96,0.25);
+          display: flex; align-items: center; justify-content: center;
+          margin: 0 auto 16px;
+          font-size: 1.5rem;
+        }
+        .modal-title {
+          font-family: 'Syne', sans-serif; font-weight: 800;
+          font-size: 1.15rem; color: #fff; margin-bottom: 8px;
+        }
+        .modal-body {
+          font-size: .85rem; color: rgba(255,255,255,0.45);
+          line-height: 1.6; margin-bottom: 24px;
+        }
+        .modal-actions { display: flex; gap: 10px; }
+        .btn-cancel {
+          flex: 1; padding: 11px; border-radius: 12px;
+          background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
+          color: rgba(255,255,255,0.55); font-family: 'Syne', sans-serif;
+          font-weight: 700; font-size: .82rem; cursor: pointer;
+          transition: background .2s, color .2s;
+        }
+        .btn-cancel:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .btn-confirm-drop {
+          flex: 1; padding: 11px; border-radius: 12px;
+          background: linear-gradient(135deg, #e94560, #c62a47);
+          border: none; color: #fff;
+          font-family: 'Syne', sans-serif; font-weight: 800;
+          font-size: .82rem; cursor: pointer;
+          transition: opacity .2s, transform .2s;
+          box-shadow: 0 4px 20px rgba(233,69,96,0.4);
+        }
+        .btn-confirm-drop:hover { opacity: .9; transform: translateY(-1px); }
     </style>
 </head>
 <body>
@@ -266,6 +374,36 @@
 <div class="orb" style="width:6px;height:6px;left:20%;animation-duration:19s;animation-delay:13s;opacity:.5"></div>
 <div class="orb" style="width:9px;height:9px;left:79%;animation-duration:12s;animation-delay:8s;"></div>
 
+<!-- ══ Confirm Modal ══════════════════════════════════════════ -->
+<div class="modal-overlay" id="unenrollModal">
+    <div class="modal-box">
+        <div class="modal-icon">
+            <i class="fas fa-door-open" style="color:#e94560"></i>
+        </div>
+        <h3 class="modal-title">Drop This Course?</h3>
+        <p class="modal-body">
+            You'll lose access to all course content immediately.<br>
+            You can re-enroll later using the enrollment key.
+        </p>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeModal()">
+                <i class="fas fa-times text-xs mr-1"></i> Cancel
+            </button>
+            <!-- This submits the hidden form -->
+            <button class="btn-confirm-drop" onclick="submitUnenroll()">
+                <i class="fas fa-sign-out-alt text-xs mr-1"></i> Drop Course
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden unenroll form (POST — no GET for destructive actions) -->
+<form id="unenrollForm"
+      th:action="@{/unenroll/{id}(id=${course.id})}"
+      method="post"
+      style="display:none;">
+</form>
+
 <!-- ══ Page ══════════════════════════════════════════════════ -->
 <div class="relative z-10 min-h-screen px-4 md:px-10 py-10 max-w-6xl mx-auto">
 
@@ -277,6 +415,16 @@
         <p class="font-display font-extrabold text-base text-white/60 tracking-tight hidden md:block">
             🎓 ABC <span style="color:#e94560">Institute</span>
         </p>
+    </div>
+
+    <!-- ══ Flash Messages ══════════════════════════════════════ -->
+    <div th:if="${success}" class="flash-success anim d1">
+        <i class="fas fa-check-circle"></i>
+        <span th:text="${success}">Success</span>
+    </div>
+    <div th:if="${error}" class="flash-error anim d1">
+        <i class="fas fa-exclamation-circle"></i>
+        <span th:text="${error}">Error</span>
     </div>
 
     <!-- ══ Hero Banner ══════════════════════════════════════════ -->
@@ -293,18 +441,18 @@
 
             <!-- Info pills row -->
             <div class="flex flex-wrap gap-3">
-        <span class="info-pill">
-          <i class="fas fa-clock"></i>
-          <span th:text="${course.lectureHoursPerWeek}">0</span> hrs/week
-        </span>
+                <span class="info-pill">
+                    <i class="fas fa-clock"></i>
+                    <span th:text="${course.lectureHoursPerWeek}">0</span> hrs/week
+                </span>
                 <span class="info-pill" th:if="${course.lecturer != null}">
-          <i class="fas fa-chalkboard-teacher"></i>
-          <span th:text="${course.lecturer.lecturerName}">Lecturer</span>
-        </span>
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    <span th:text="${course.lecturer.lecturerName}">Lecturer</span>
+                </span>
                 <span class="info-pill" th:if="${course.department != null}">
-          <i class="fas fa-building"></i>
-          <span th:text="${course.department.deptName}">Department</span>
-        </span>
+                    <i class="fas fa-building"></i>
+                    <span th:text="${course.department.deptName}">Department</span>
+                </span>
             </div>
 
             <!-- shimmer progress bar decoration -->
@@ -370,7 +518,7 @@
                 </div>
             </div>
 
-            <!-- Trophy / enrolled card -->
+            <!-- ══ Trophy / Enrolled card ══════════════════════════ -->
             <div class="trophy-card anim d5">
                 <div class="relative z-10">
                     <div class="trophy-icon text-4xl mb-3">🏆</div>
@@ -379,7 +527,8 @@
                         Good luck with your studies,<br>
                         <span class="text-white font-semibold" th:text="${username}">Student</span>! 🎉
                     </p>
-                    <!-- Tiny progress indicator -->
+
+                    <!-- Progress indicator -->
                     <div class="mt-4 flex items-center gap-2">
                         <div class="flex-1 h-1.5 rounded-full" style="background:rgba(255,255,255,0.2)">
                             <div class="h-full rounded-full" style="width:15%;background:rgba(255,255,255,0.8)"></div>
@@ -387,7 +536,33 @@
                         <span class="text-white/50 text-xs">15%</span>
                     </div>
                     <p class="text-white/30 text-xs mt-1">Keep going!</p>
+
+                    <!-- ══ UNENROLL BUTTON (new) ══════════════════ -->
+                    <button class="btn-unenroll" onclick="openModal()">
+                        <i class="fas fa-sign-out-alt" style="font-size:.75rem"></i>
+                        Drop This Course
+                    </button>
+                    <!-- ══════════════════════════════════════════ -->
+
                 </div>
+            </div>
+
+            <!-- ── My Courses shortcut card ──────────────────────── -->
+            <div class="glass rounded-2xl p-5 anim d6">
+                <a href="/my-courses"
+                   class="flex items-center gap-3 text-white/50 hover:text-white transition-colors duration-200">
+                    <div style="
+                        width:36px;height:36px;border-radius:10px;flex-shrink:0;
+                        background:rgba(58,134,255,0.12);border:1px solid rgba(58,134,255,0.2);
+                        display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-layer-group" style="color:#3a86ff;font-size:.8rem"></i>
+                    </div>
+                    <div>
+                        <p class="font-display font-bold text-xs text-white">My Courses</p>
+                        <p class="text-xs text-white/35">View all enrolled courses</p>
+                    </div>
+                    <i class="fas fa-chevron-right text-xs ml-auto opacity-40"></i>
+                </a>
             </div>
 
         </div><!-- end sidebar -->
@@ -395,11 +570,34 @@
 </div><!-- end page -->
 
 <script>
-    // Count topics and update the chip
+    // ── Topic count chip ──────────────────────────────────────
     window.addEventListener('DOMContentLoaded', () => {
-      const items = document.querySelectorAll('#topicList .topic-item');
-      const chip  = document.getElementById('topicCount');
-      if (chip) chip.textContent = items.length + (items.length === 1 ? ' topic' : ' topics');
+        const items = document.querySelectorAll('#topicList .topic-item');
+        const chip  = document.getElementById('topicCount');
+        if (chip) chip.textContent = items.length + (items.length === 1 ? ' topic' : ' topics');
+    });
+
+    // ── Modal helpers ─────────────────────────────────────────
+    function openModal() {
+        document.getElementById('unenrollModal').classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('unenrollModal').classList.remove('active');
+    }
+
+    function submitUnenroll() {
+        document.getElementById('unenrollForm').submit();
+    }
+
+    // Close modal if user clicks the dark overlay itself
+    document.getElementById('unenrollModal').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeModal();
     });
 </script>
 

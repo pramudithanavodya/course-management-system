@@ -8,232 +8,217 @@
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
-          theme: {
-            extend: {
-              colors: { crimson:'#e94560', navy:'#0f3460', mid:'#1a1a2e', deep:'#0d0b1a' },
-              fontFamily: { display:['Syne','sans-serif'], body:['DM Sans','sans-serif'] },
-            },
-          },
+            theme: {
+                extend: {
+                    colors: {
+                        crimson: '#e94560',
+                        navy: '#0f3460',
+                        mid: '#1a1a2e',
+                        deep: '#0d0b1a'
+                    },
+                    fontFamily: {
+                        display: ['Syne', 'sans-serif'],
+                        body: ['DM Sans', 'sans-serif']
+                    }
+                }
+            }
         }
     </script>
     <style>
-        *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
-        html, body { min-height:100%; font-family:'DM Sans',sans-serif; background:#0d0b1a; color:#fff; }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { min-height: 100%; font-family: 'DM Sans', sans-serif; background: #0d0b1a; color: #fff; }
 
-        /* ══ Floating orbs ════════════════════════════════════════ */
+        /* ══ Orbs ═════════════════════════════════════════════════ */
         @keyframes floatUp {
-          0%   { transform:translateY(110vh) scale(0.4); opacity:0; }
-          8%   { opacity:.45; }
-          92%  { opacity:.15; }
-          100% { transform:translateY(-8vh) scale(1.2); opacity:0; }
+            0% { transform: translateY(110vh) scale(.4); opacity: 0 }
+            8% { opacity: .45 }
+            92% { opacity: .15 }
+            100% { transform: translateY(-8vh) scale(1.2); opacity: 0 }
         }
         .orb {
-          position:fixed; border-radius:50%; pointer-events:none; z-index:0;
-          animation:floatUp linear infinite;
-          background:radial-gradient(circle at 40% 40%, rgba(233,69,96,.38), transparent 70%);
+            position: fixed; border-radius: 50%; pointer-events: none; z-index: 0;
+            animation: floatUp linear infinite;
+            background: radial-gradient(circle at 40% 40%, rgba(233,69,96,.38), transparent 70%);
         }
 
-        /* ══ Animated grid bg ════════════════════════════════════ */
-        @keyframes gridDrift { to { background-position:60px 60px; } }
+        /* ══ Grid bg ══════════════════════════════════════════════ */
+        @keyframes gridDrift { to { background-position: 60px 60px } }
         .grid-bg {
-          position:fixed; inset:0; z-index:0; pointer-events:none;
-          background-image:
-            linear-gradient(rgba(233,69,96,.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(233,69,96,.03) 1px, transparent 1px);
-          background-size:60px 60px;
-          animation:gridDrift 8s linear infinite;
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background-image: linear-gradient(rgba(233,69,96,.028) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(233,69,96,.028) 1px, transparent 1px);
+            background-size: 60px 60px; animation: gridDrift 8s linear infinite;
         }
 
         /* ══ Sidebar ══════════════════════════════════════════════ */
         .sidebar {
-          position:fixed; top:0; left:0; height:100vh; width:260px;
-          background:linear-gradient(170deg, rgba(18,18,43,.97) 0%, rgba(15,52,96,.93) 100%);
-          backdrop-filter:blur(24px);
-          border-right:1px solid rgba(255,255,255,0.06);
-          display:flex; flex-direction:column;
-          padding:28px 20px; z-index:40;
-          transition:transform .3s ease;
+            position: fixed; top: 0; left: 0; height: 100vh; width: 260px;
+            background: linear-gradient(170deg, rgba(18,18,43,.97) 0%, rgba(15,52,96,.93) 100%);
+            backdrop-filter: blur(24px); border-right: 1px solid rgba(255,255,255,.06);
+            display: flex; flex-direction: column; padding: 28px 20px; z-index: 40; overflow-y: auto;
         }
 
         /* ══ Nav links ════════════════════════════════════════════ */
         .nav-link {
-          display:flex; align-items:center; gap:10px;
-          color:rgba(255,255,255,.5); border-radius:11px;
-          padding:10px 14px; margin-bottom:3px;
-          text-decoration:none; font-size:.85rem;
-          transition:background .2s, color .2s, padding-left .2s, box-shadow .2s;
-          position:relative; overflow:hidden;
+            display: flex; align-items: center; gap: 10px; color: rgba(255,255,255,.5);
+            border-radius: 11px; padding: 10px 14px; margin-bottom: 3px; text-decoration: none;
+            font-size: .85rem; transition: background .2s, color .2s, padding-left .2s;
+            position: relative; overflow: hidden;
         }
         .nav-link::before {
-          content:''; position:absolute; left:0; top:0; bottom:0;
-          width:3px; background:#e94560; border-radius:0 3px 3px 0;
-          transform:scaleY(0); transition:transform .2s;
+            content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+            background: #e94560; border-radius: 0 3px 3px 0; transform: scaleY(0); transition: transform .2s;
         }
-        .nav-link:hover        { background:rgba(233,69,96,.1); color:#fff; padding-left:18px; }
-        .nav-link:hover::before{ transform:scaleY(1); }
-        .nav-link.active       { background:rgba(233,69,96,.12); color:#fff; padding-left:18px; }
-        .nav-link.active::before{ transform:scaleY(1); }
-        .nav-link i { width:16px; text-align:center; }
+        .nav-link:hover { background: rgba(233,69,96,.1); color: #fff; padding-left: 18px; }
+        .nav-link:hover::before, .nav-link.active::before { transform: scaleY(1); }
+        .nav-link.active { background: rgba(233,69,96,.12); color: #fff; padding-left: 18px; }
+        .nav-link i { width: 16px; text-align: center; }
 
         /* ══ Glass ════════════════════════════════════════════════ */
         .glass {
-          background:rgba(255,255,255,.04);
-          backdrop-filter:blur(18px);
-          border:1px solid rgba(255,255,255,.08);
+            background: rgba(255,255,255,.04); backdrop-filter: blur(18px);
+            border: 1px solid rgba(255,255,255,.08);
+            transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+        }
+        .glass:hover {
+            transform: translateY(-4px);
+            border-color: rgba(233,69,96,.25);
+            box-shadow: 0 16px 40px rgba(233,69,96,.08), 0 0 0 1px rgba(233,69,96,.06);
         }
 
-        /* ══ Stat cards ═══════════════════════════════════════════ */
-        .stat-r { background:linear-gradient(135deg,#e94560 0%,#c62a47 100%); }
-        .stat-b { background:linear-gradient(135deg,#3a86ff 0%,#1a6fd4 100%); }
-        .stat-g { background:linear-gradient(135deg,#2ecc71 0%,#16a854 100%); }
-        .stat-p { background:linear-gradient(135deg,#a855f7 0%,#7c3aed 100%); }
-
-        @keyframes statEntrance {
-          from { opacity:0; transform:translateY(30px) scale(.95); }
-          to   { opacity:1; transform:translateY(0)    scale(1);   }
-        }
-        .stat-card {
-          border-radius:20px; padding:22px;
-          position:relative; overflow:hidden;
-          animation:statEntrance .6s cubic-bezier(.22,.68,0,1.2) both;
-          transition:transform .3s, box-shadow .3s;
-          cursor:default;
-        }
-        .stat-card:hover { transform:translateY(-6px) scale(1.02); box-shadow:0 20px 50px rgba(0,0,0,.35); }
-
-        /* number count-up shimmer */
-        @keyframes numGlow {
-          0%,100% { text-shadow:none; }
-          50%      { text-shadow:0 0 20px rgba(255,255,255,.6); }
-        }
-        .stat-num {
-          font-family:'Syne',sans-serif; font-weight:800;
-          font-size:2.6rem; line-height:1;
-          animation:numGlow 3s ease-in-out infinite;
-        }
-
-        /* card inner glow circle */
-        .stat-card::after {
-          content:''; position:absolute;
-          width:120px; height:120px; border-radius:50%;
-          background:rgba(255,255,255,.07);
-          right:-25px; bottom:-25px; pointer-events:none;
-        }
-        .stat-card::before {
-          content:''; position:absolute;
-          width:70px; height:70px; border-radius:50%;
-          background:rgba(255,255,255,.05);
-          top:-15px; left:-15px; pointer-events:none;
-        }
-
-        /* ══ Quick action cards ═══════════════════════════════════ */
-        .action-card {
-          background:rgba(255,255,255,.04);
-          backdrop-filter:blur(16px);
-          border:1px solid rgba(255,255,255,.08);
-          border-radius:20px; padding:28px 22px;
-          text-align:center;
-          transition:transform .35s, border-color .35s, box-shadow .35s;
-          position:relative; overflow:hidden;
-        }
-        .action-card::after {
-          content:''; position:absolute; inset:0; border-radius:20px;
-          background:radial-gradient(circle at 50% 0%, rgba(233,69,96,.06), transparent 70%);
-          opacity:0; transition:opacity .35s;
-        }
-        .action-card:hover {
-          transform:translateY(-6px);
-          border-color:rgba(233,69,96,.3);
-          box-shadow:0 18px 50px rgba(233,69,96,.1);
-        }
-        .action-card:hover::after { opacity:1; }
-
-        /* icon bounce */
-        @keyframes iconFloat {
-          0%,100% { transform:translateY(0); }
-          50%      { transform:translateY(-7px); }
-        }
-        .action-icon { display:inline-block; animation:iconFloat 3s ease-in-out infinite; }
-
-        /* ══ Action buttons ═══════════════════════════════════════ */
-        .btn-action {
-          display:inline-flex; align-items:center; gap:6px;
-          border-radius:999px; padding:7px 20px;
-          font-size:.78rem; font-weight:700;
-          font-family:'Syne',sans-serif;
-          text-decoration:none; margin-top:14px;
-          transition:transform .2s, box-shadow .2s;
-        }
-        .btn-action:hover { transform:scale(1.06); }
-
-        .btn-r { background:linear-gradient(135deg,#e94560,#c62a47); color:#fff; }
-        .btn-r:hover { box-shadow:0 8px 22px rgba(233,69,96,.45); }
-        .btn-b { background:linear-gradient(135deg,#3a86ff,#1a6fd4); color:#fff; }
-        .btn-b:hover { box-shadow:0 8px 22px rgba(58,134,255,.45); }
-        .btn-g { background:linear-gradient(135deg,#2ecc71,#16a854); color:#fff; }
-        .btn-g:hover { box-shadow:0 8px 22px rgba(46,204,113,.45); }
-
-        /* ══ Title gradient shimmer ═══════════════════════════════ */
+        /* ══ Title shimmer ════════════════════════════════════════ */
         @keyframes gradientFlow {
-          0%,100% { background-position:0% 50%; }
-          50%      { background-position:100% 50%; }
+            0%,100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
         }
         .title-shimmer {
-          font-family:'Syne',sans-serif; font-weight:800; font-size:1.85rem;
-          background:linear-gradient(90deg,#fff 0%,#ffb3c1 35%,#e94560 60%,#fff 100%);
-          background-size:200% auto;
-          -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-          background-clip:text;
-          animation:gradientFlow 4s ease infinite;
+            font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.85rem;
+            background: linear-gradient(90deg, #fff 0%, #ffb3c1 35%, #e94560 60%, #fff 100%);
+            background-size: 200% auto; -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent; background-clip: text;
+            animation: gradientFlow 4s ease infinite;
         }
 
-        /* ══ Section heading ══════════════════════════════════════ */
-        .sec-head { display:flex; align-items:center; gap:10px; margin-bottom:18px; }
-        .sec-bar   { width:3px; height:20px; border-radius:99px; }
-
-        /* ══ User pill ════════════════════════════════════════════ */
-        @keyframes pillPulse {
-          0%,100% { box-shadow:0 0 0   rgba(233,69,96,0);   }
-          50%      { box-shadow:0 0 14px rgba(233,69,96,.3); }
-        }
-        .user-pill { animation:pillPulse 3s ease-in-out infinite; }
-
-        /* ══ Scrollbar ════════════════════════════════════════════ */
-        ::-webkit-scrollbar { width:5px; }
-        ::-webkit-scrollbar-track { background:transparent; }
-        ::-webkit-scrollbar-thumb { background:rgba(233,69,96,.3); border-radius:99px; }
-
-        /* ══ Stagger fade-in ══════════════════════════════════════ */
+        /* ══ Staggered animations ════════════════════════════════ */
         @keyframes fadeInUp {
-          from { opacity:0; transform:translateY(22px); }
-          to   { opacity:1; transform:translateY(0); }
+            from { opacity: 0; transform: translateY(22px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .anim { animation:fadeInUp .55s ease both; }
-        .d1{animation-delay:.05s;} .d2{animation-delay:.12s;} .d3{animation-delay:.2s;}
-        .d4{animation-delay:.28s;} .d5{animation-delay:.38s;} .d6{animation-delay:.48s;}
-        .d7{animation-delay:.58s;} .d8{animation-delay:.68s;}
-
-        /* stat card stagger */
-        .sc1{animation-delay:.25s;} .sc2{animation-delay:.35s;}
-        .sc3{animation-delay:.45s;} .sc4{animation-delay:.55s;}
-
-        /* action card stagger */
-        .ac1{animation-delay:.5s;} .ac2{animation-delay:.6s;} .ac3{animation-delay:.7s;}
-
-        /* ══ Divider line ═════════════════════════════════════════ */
-        .glow-line {
-          height:1px; border:none;
-          background:linear-gradient(90deg,transparent,rgba(233,69,96,.3),transparent);
-          margin:14px 0;
-        }
+        .anim { animation: fadeInUp .55s ease both; }
+        .d1 { animation-delay: .05s; } .d2 { animation-delay: .12s; } .d3 { animation-delay: .2s; }
+        .d4 { animation-delay: .28s; } .d5 { animation-delay: .36s; } .d6 { animation-delay: .44s; }
 
         /* ══ Live dot ═════════════════════════════════════════════ */
-        @keyframes liveDot { 0%,100%{opacity:1;} 50%{opacity:.25;} }
-        .live-dot { animation:liveDot 1.5s ease-in-out infinite; }
+        @keyframes liveDot { 0%,100% { opacity: 1; } 50% { opacity: .25; } }
+        .live-dot { animation: liveDot 1.5s ease-in-out infinite; }
 
-        @media(max-width:768px){
-          .sidebar{ transform:translateX(-100%); }
-          .main-wrap{ margin-left:0 !important; }
+        /* ══ Glow line ════════════════════════════════════════════ */
+        .glow-line {
+            height: 1px; border: none;
+            background: linear-gradient(90deg, transparent, rgba(233,69,96,.3), transparent);
+            margin: 14px 0;
+        }
+
+        /* ══ Stat card (glass base) ══════════════════════════════ */
+        .stat-card {
+            background: rgba(255,255,255,.03);
+            backdrop-filter: blur(18px);
+            border: 1px solid rgba(255,255,255,.06);
+            border-radius: 20px;
+            padding: 20px 24px;
+            transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::after {
+            content: '';
+            position: absolute; top: 0; right: 0;
+            width: 80px; height: 80px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(233,69,96,.15), transparent 70%);
+            transform: translate(20%, -20%);
+            pointer-events: none;
+        }
+        .stat-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(233,69,96,.2);
+            box-shadow: 0 20px 45px rgba(233,69,96,.12), 0 0 0 1px rgba(233,69,96,.06);
+        }
+        .stat-icon {
+            width: 44px; height: 44px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(233,69,96,.1);
+            color: #e94560; font-size: 1.2rem;
+            margin-bottom: 14px;
+            transition: background .3s;
+        }
+        .stat-card:hover .stat-icon {
+            background: rgba(233,69,96,.2);
+        }
+        .stat-value {
+            font-family: 'Syne', sans-serif; font-weight: 800; font-size: 2.2rem;
+            color: #fff; line-height: 1;
+        }
+        .stat-label {
+            font-size: .7rem; text-transform: uppercase; letter-spacing: .06em;
+            color: rgba(255,255,255,.45); font-weight: 600; margin-top: 6px;
+        }
+
+        /* ══ Quick action buttons ════════════════════════════════ */
+        .quick-action {
+            display: flex; align-items: center; gap: 12px;
+            background: rgba(255,255,255,.03);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,.06);
+            border-radius: 16px; padding: 14px 18px;
+            text-decoration: none;
+            transition: all .3s ease;
+            position: relative; overflow: hidden;
+        }
+        .quick-action::before {
+            content: '';
+            position: absolute; left: 0; top: 0; bottom: 0;
+            width: 3px; background: #e94560;
+            border-radius: 0 4px 4px 0;
+            transform: scaleY(0); transition: transform .3s ease;
+        }
+        .quick-action:hover::before { transform: scaleY(1); }
+        .quick-action:hover {
+            background: rgba(233,69,96,.05);
+            border-color: rgba(233,69,96,.2);
+            transform: translateX(4px);
+        }
+        .quick-action i {
+            width: 18px; text-align: center; color: #e94560; font-size: .9rem;
+        }
+        .quick-action span {
+            font-family: 'Syne', sans-serif; font-weight: 600;
+            color: rgba(255,255,255,.8); font-size: .85rem;
+        }
+
+        /* ══ Section head ═════════════════════════════════════════ */
+        .sec-head { display: flex; align-items: center; gap: 10px; margin-bottom: 0; }
+        .sec-bar { width: 3px; height: 20px; border-radius: 99px; background: #e94560; }
+
+        /* ══ User pill pulse ══════════════════════════════════════ */
+        @keyframes pillPulse {
+            0%,100% { box-shadow: 0 0 0 rgba(233,69,96,0); }
+            50% { box-shadow: 0 0 14px rgba(233,69,96,.3); }
+        }
+        .user-pill { animation: pillPulse 3s ease-in-out infinite; }
+
+        /* ══ Scrollbar ════════════════════════════════════════════ */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(233,69,96,.3); border-radius: 99px; }
+
+        /* ══ Additional smoothness ════════════════════════════════ */
+        .hover-lift { transition: transform .3s ease, box-shadow .3s ease; }
+        .hover-lift:hover { transform: translateY(-2px); }
+
+        @media(max-width:768px) {
+            .sidebar { display: none; }
+            .main-wrap { margin-left: 0 !important; }
         }
     </style>
 </head>
@@ -259,51 +244,46 @@
 <!-- ══ Layout ════════════════════════════════════════════════ -->
 <div class="flex relative z-10">
 
-    <!-- ── Sidebar ────────────────────────────────────────────── -->
+    <!-- ── Sidebar ─────────────────────────────────────────── -->
     <aside class="sidebar">
-        <!-- Logo -->
         <div class="mb-7 anim d1">
-            <p class="font-display font-extrabold text-xl text-white tracking-tight">
+            <!-- Logo links to same page -->
+            <a href="/admin/dashboard" class="font-display font-extrabold text-xl text-white tracking-tight no-underline hover:opacity-80 transition-opacity">
                 ⚙️ Admin <span style="color:#e94560">Panel</span>
-            </p>
+            </a>
             <p class="text-white/25 text-xs mt-0.5">ABC Institute</p>
         </div>
 
-        <!-- Admin user pill -->
         <div class="glass user-pill rounded-2xl px-4 py-3 mb-6 anim d2">
             <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-full flex items-center justify-center font-display font-bold text-sm text-white flex-shrink-0"
-                     style="background:linear-gradient(135deg,#e94560,#c62a47)">A</div>
-                <div class="overflow-hidden">
-                    <p class="text-white text-sm font-semibold font-display truncate" th:text="${adminName}">Admin</p>
+                <div class="w-9 h-9 rounded-full flex items-center justify-center font-display font-bold text-sm text-white flex-shrink-0" style="background:linear-gradient(135deg,#e94560,#c62a47)">A</div>
+                <div>
+                    <p class="text-white text-sm font-semibold font-display">Administrator</p>
                     <div class="flex items-center gap-1.5">
                         <span class="w-1.5 h-1.5 rounded-full bg-green-400 live-dot"></span>
-                        <p class="text-white/35 text-xs">Super Admin</p>
+                        <p class="text-white/35 text-xs" th:text="${adminRole == 'SUPER_ADMIN'} ? 'Super Admin' : 'General Admin'">Super Admin</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Nav -->
         <nav class="flex-1 anim d3">
             <p class="text-white/20 text-xs uppercase tracking-widest font-display mb-3 px-2">Navigation</p>
-            <a href="/admin/dashboard" class="nav-link active"><i class="fas fa-tachometer-alt"></i>Dashboard</a>
-            <a href="/admin/courses"    class="nav-link"><i class="fas fa-book"></i>Courses</a>
-            <a href="/admin/lectures"   class="nav-link"><i class="fas fa-chalkboard-teacher"></i>Lecturers</a>
-            <a href="/admin/departments"class="nav-link"><i class="fas fa-building"></i>Departments</a>
-            <a href="/admin/students"   class="nav-link"><i class="fas fa-users"></i>Students</a>
+            <a href="/admin/dashboard"   class="nav-link active"><i class="fas fa-tachometer-alt"></i>Dashboard</a>
+            <a href="/admin/courses"     class="nav-link"><i class="fas fa-book"></i>Courses</a>
+            <a href="/admin/lectures"    class="nav-link"><i class="fas fa-chalkboard-teacher"></i>Lecturers</a>
+            <a href="/admin/departments" class="nav-link"><i class="fas fa-building"></i>Departments</a>
+            <a href="/admin/students"    class="nav-link"><i class="fas fa-users"></i>Students</a>
+            <a href="/admin/admins"      class="nav-link" th:if="${adminRole == 'SUPER_ADMIN'}"><i class="fas fa-user-shield"></i>Admins</a>
         </nav>
 
-        <!-- Logout -->
         <div class="anim d4">
             <hr class="glow-line">
-            <a href="/logout" class="nav-link" style="color:rgba(233,69,96,.75)">
-                <i class="fas fa-sign-out-alt"></i>Sign Out
-            </a>
+            <a href="/logout" class="nav-link" style="color:rgba(233,69,96,.75)"><i class="fas fa-sign-out-alt"></i>Sign Out</a>
         </div>
     </aside>
 
-    <!-- ── Main ────────────────────────────────────────────────── -->
+    <!-- ── Main ────────────────────────────────────────────── -->
     <main class="main-wrap flex-1 min-h-screen" style="margin-left:260px;padding:36px 36px 60px">
 
         <!-- Header -->
@@ -313,134 +293,104 @@
                 <p class="text-white/35 text-sm font-body mt-2">ABC Institute Management System</p>
             </div>
             <div class="glass rounded-full px-4 py-2 flex items-center gap-2 text-sm text-white/50">
-                <span class="w-2 h-2 rounded-full bg-green-400 live-dot"></span>
-                System Online
+                <span class="inline-block w-2 h-2 rounded-full bg-green-400" style="animation:liveDot 2s infinite"></span>
+                System Active
             </div>
         </div>
 
-        <!-- ── Stat Cards ──────────────────────────────────────── -->
-        <div class="sec-head anim d2">
-            <div class="sec-bar" style="background:#e94560"></div>
-            <h2 class="font-display font-bold text-white text-base">Overview</h2>
+        <!-- ── Stats Row (glass cards, no bright colors) ──────── -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
+            <!-- Total Students -->
+            <div class="stat-card anim d2">
+                <div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
+                <div class="stat-value" th:text="${totalStudents}">0</div>
+                <div class="stat-label">Total Students</div>
+            </div>
+            <!-- Total Courses -->
+            <div class="stat-card anim d3">
+                <div class="stat-icon"><i class="fas fa-book"></i></div>
+                <div class="stat-value" th:text="${totalCourses}">0</div>
+                <div class="stat-label">Active Courses</div>
+            </div>
+            <!-- Total Lecturers -->
+            <div class="stat-card anim d4">
+                <div class="stat-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+                <div class="stat-value" th:text="${totalLecturers}">0</div>
+                <div class="stat-label">Faculty Members</div>
+            </div>
+            <!-- Total Departments -->
+            <div class="stat-card anim d5">
+                <div class="stat-icon"><i class="fas fa-building"></i></div>
+                <div class="stat-value" th:text="${totalDepts}">0</div>
+                <div class="stat-label">Departments</div>
+            </div>
         </div>
 
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
-
-            <!-- Courses -->
-            <div class="stat-card stat-r sc1">
-                <div class="relative z-10">
-                    <div class="flex justify-between items-start mb-3">
-                        <div class="w-11 h-11 rounded-xl flex items-center justify-center" style="background:rgba(255,255,255,.15)">
-                            <i class="fas fa-book text-white"></i>
-                        </div>
-                        <span class="text-white/50 text-xs font-display uppercase tracking-wider">Courses</span>
-                    </div>
-                    <p class="stat-num text-white" th:text="${totalCourses}">0</p>
-                    <p class="text-white/55 text-xs mt-1">Total courses</p>
-                </div>
+        <!-- ── Quick Actions ────────────────────────────────── -->
+        <div class="mb-8 anim d3">
+            <div class="sec-head mb-4">
+                <div class="sec-bar"></div>
+                <h2 class="font-display font-bold text-white text-base">Quick Actions</h2>
             </div>
-
-            <!-- Students -->
-            <div class="stat-card stat-b sc2">
-                <div class="relative z-10">
-                    <div class="flex justify-between items-start mb-3">
-                        <div class="w-11 h-11 rounded-xl flex items-center justify-center" style="background:rgba(255,255,255,.15)">
-                            <i class="fas fa-users text-white"></i>
-                        </div>
-                        <span class="text-white/50 text-xs font-display uppercase tracking-wider">Students</span>
-                    </div>
-                    <p class="stat-num text-white" th:text="${totalStudents}">0</p>
-                    <p class="text-white/55 text-xs mt-1">Registered</p>
-                </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <a href="/admin/courses/add" class="quick-action">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Add New Course</span>
+                </a>
+                <a href="/admin/lectures/add" class="quick-action">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Add Lecturer</span>
+                </a>
+                <a href="/admin/departments/add" class="quick-action">
+                    <i class="fas fa-building"></i>
+                    <span>Add Department</span>
+                </a>
+                <a href="/admin/students" class="quick-action">
+                    <i class="fas fa-users"></i>
+                    <span>Manage Students</span>
+                </a>
             </div>
-
-            <!-- Departments -->
-            <div class="stat-card stat-g sc3">
-                <div class="relative z-10">
-                    <div class="flex justify-between items-start mb-3">
-                        <div class="w-11 h-11 rounded-xl flex items-center justify-center" style="background:rgba(255,255,255,.15)">
-                            <i class="fas fa-building text-white"></i>
-                        </div>
-                        <span class="text-white/50 text-xs font-display uppercase tracking-wider">Depts</span>
-                    </div>
-                    <p class="stat-num text-white" th:text="${totalDepts}">0</p>
-                    <p class="text-white/55 text-xs mt-1">Departments</p>
-                </div>
-            </div>
-
-            <!-- Lecturers -->
-            <div class="stat-card stat-p sc4">
-                <div class="relative z-10">
-                    <div class="flex justify-between items-start mb-3">
-                        <div class="w-11 h-11 rounded-xl flex items-center justify-center" style="background:rgba(255,255,255,.15)">
-                            <i class="fas fa-chalkboard-teacher text-white"></i>
-                        </div>
-                        <span class="text-white/50 text-xs font-display uppercase tracking-wider">Lecturers</span>
-                    </div>
-                    <p class="stat-num text-white" th:text="${totalLecturers}">0</p>
-                    <p class="text-white/55 text-xs mt-1">Faculty</p>
-                </div>
-            </div>
-
-        </div><!-- end stats -->
-
-        <!-- ── Quick Actions ────────────────────────────────────── -->
-        <div class="sec-head anim d5">
-            <div class="sec-bar" style="background:#3a86ff"></div>
-            <h2 class="font-display font-bold text-white text-base">Quick Actions</h2>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-
-            <!-- Add Course -->
-            <div class="action-card ac1">
-                <div class="action-icon mb-4" style="animation-duration:2.8s">
-                    <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto"
-                         style="background:rgba(233,69,96,.12);border:1px solid rgba(233,69,96,.2)">
-                        <i class="fas fa-plus-circle text-2xl" style="color:#e94560"></i>
-                    </div>
-                </div>
-                <h3 class="font-display font-bold text-white text-base mb-1">Add New Course</h3>
-                <p class="text-white/30 text-xs leading-relaxed">Create and publish a new course to the catalogue</p>
-                <a href="/admin/courses/add" class="btn-action btn-r">
-                    <i class="fas fa-arrow-right text-xs"></i> Go to Courses
-                </a>
+        <!-- ── Recent Activity / Additional Info ─────────────── -->
+        <div class="glass rounded-2xl p-6 anim d6">
+            <div class="sec-head mb-4">
+                <div class="sec-bar"></div>
+                <h2 class="font-display font-bold text-white text-base">System Overview</h2>
             </div>
-
-            <!-- Add Lecturer -->
-            <div class="action-card ac2">
-                <div class="action-icon mb-4" style="animation-duration:3.4s">
-                    <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto"
-                         style="background:rgba(58,134,255,.12);border:1px solid rgba(58,134,255,.2)">
-                        <i class="fas fa-user-plus text-2xl" style="color:#3a86ff"></i>
-                    </div>
+            <p class="text-white/35 text-sm leading-relaxed">
+                Welcome to the ABC Institute management console. From here you can oversee all academic operations,
+                manage courses, lecturers, departments, and student accounts. Use the sidebar or quick actions above
+                to navigate to the dedicated management sections.
+            </p>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 text-center">
+                <div class="glass rounded-xl p-3">
+                    <i class="fas fa-check-circle text-green-400 text-xl mb-2"></i>
+                    <p class="text-white/50 text-xs">Secure Access</p>
                 </div>
-                <h3 class="font-display font-bold text-white text-base mb-1">Add Lecturer</h3>
-                <p class="text-white/30 text-xs leading-relaxed">Register a new faculty member to the system</p>
-                <a href="/admin/lectures/add" class="btn-action btn-b">
-                    <i class="fas fa-arrow-right text-xs"></i> Add Lecturer
-                </a>
-            </div>
-
-            <!-- Departments -->
-            <div class="action-card ac3">
-                <div class="action-icon mb-4" style="animation-duration:3.1s">
-                    <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto"
-                         style="background:rgba(46,204,113,.12);border:1px solid rgba(46,204,113,.2)">
-                        <i class="fas fa-building text-2xl" style="color:#2ecc71"></i>
-                    </div>
+                <div class="glass rounded-xl p-3">
+                    <i class="fas fa-clock text-amber-400 text-xl mb-2"></i>
+                    <p class="text-white/50 text-xs">Real-time Data</p>
                 </div>
-                <h3 class="font-display font-bold text-white text-base mb-1">Manage Departments</h3>
-                <p class="text-white/30 text-xs leading-relaxed">View, edit and organise all departments</p>
-                <a href="/admin/departments" class="btn-action btn-g">
-                    <i class="fas fa-arrow-right text-xs"></i> Departments
-                </a>
+                <div class="glass rounded-xl p-3">
+                    <i class="fas fa-shield-halved text-blue-400 text-xl mb-2"></i>
+                    <p class="text-white/50 text-xs">Role Protected</p>
+                </div>
+                <div class="glass rounded-xl p-3">
+                    <i class="fas fa-sync-alt text-purple-400 text-xl mb-2"></i>
+                    <p class="text-white/50 text-xs">Instant Sync</p>
+                </div>
             </div>
-
-        </div><!-- end quick actions -->
+        </div>
 
     </main>
 </div>
+
+<!-- extra smooth interactions -->
+<script>
+    // Optional: small hover sound effect or just visual feedback is already handled by CSS
+    console.log('Admin Dashboard loaded');
+</script>
 
 </body>
 </html>
