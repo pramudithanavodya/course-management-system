@@ -43,17 +43,6 @@ public class Student {
         this.createdDate = LocalDateTime.now();
     }
 
-    // Keep these for backward compatibility (viva - explain file to DB migration)
-    public String toFileString() {
-        return username + "|" + email + "|" + phone + "|" + password + "|" + fullName;
-    }
-
-    public static Student fromFileString(String line) {
-        String[] parts = line.split("\\|");
-        if (parts.length < 5) return null;
-        return new Student(parts[0], parts[1], parts[2], parts[3], parts[4]);
-    }
-
     // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -78,10 +67,5 @@ public class Student {
         this.createdDate = createdDate;
     }
 
-    @Override
-    public String toString() {
-        return "Student{username='" + username + "', email='"
-                + email + "', fullName='" + fullName + "'}";
-    }
 
 }
