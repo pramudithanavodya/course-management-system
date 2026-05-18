@@ -67,10 +67,5 @@ public class Student {
         this.createdDate = createdDate;
     }
 
-    @Override
-    public String toString() {
-        return "Student{username='" + username + "', email='"
-                + email + "', fullName='" + fullName + "'}";
-    }
 
 }
