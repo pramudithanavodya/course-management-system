@@ -3,6 +3,7 @@ package com.abcinstitute.student_management.controller;
 
 import com.abcinstitute.student_management.model.*;
 import com.abcinstitute.student_management.repository.*;
+import com.abcinstitute.student_management.service.AdminService;
 import com.abcinstitute.student_management.service.CourseService;
 import com.abcinstitute.student_management.service.StudentService;
 import jakarta.servlet.http.HttpSession;
@@ -21,6 +22,7 @@ public class AdminController {
 
     @Autowired private CourseService courseService;
     @Autowired private StudentService studentService;
+    @Autowired private AdminService adminService;
     @Autowired private DepartmentRepository departmentRepository;
     @Autowired private LectureRepository lectureRepository;
     @Autowired private EnrollmentRepository enrollmentRepository;
@@ -28,6 +30,17 @@ public class AdminController {
     // ─── Guard: check admin session ───
     private boolean isAdmin(HttpSession session) {
         return "ADMIN".equals(session.getAttribute("userType"));
+    }
+    
+    // ─── Guard: check super-admin ───
+    private boolean isSuperAdmin(HttpSession session) {
+        return "SUPER_ADMIN".equals(session.getAttribute("adminRole"));
+    }
+
+    /** Injects adminRole into the model so all templates can conditionally render the Admins nav link */
+    private void addCommonAttributes(HttpSession session, Model model) {
+        model.addAttribute("adminRole", session.getAttribute("adminRole"));
+        model.addAttribute("adminName", session.getAttribute("loggedInUser"));
     }
 
     // Admin Dashboard
@@ -38,7 +51,7 @@ public class AdminController {
         model.addAttribute("totalStudents", studentService.getAllStudents().size());
         model.addAttribute("totalDepts", departmentRepository.count());
         model.addAttribute("totalLecturers", lectureRepository.count());
-        model.addAttribute("adminName", session.getAttribute("loggedInUser"));
+        addCommonAttributes(session, model);
         return "admin/admin-dashboard";
     }
 
@@ -47,6 +60,7 @@ public class AdminController {
     public String listCourses(HttpSession session, Model model) {
         if (!isAdmin(session)) return "redirect:/admin-login";
         model.addAttribute("courses", courseService.getAllCourses());
+        addCommonAttributes(session, model);
         return "admin/courses";
     }
 
@@ -56,6 +70,7 @@ public class AdminController {
         model.addAttribute("course", new Course());
         model.addAttribute("departments", departmentRepository.findAll());
         model.addAttribute("lecturers", lectureRepository.findAll());
+        addCommonAttributes(session, model);
         return "admin/add-course";
     }
 
@@ -81,6 +96,7 @@ public class AdminController {
         model.addAttribute("course", course.get());
         model.addAttribute("departments", departmentRepository.findAll());
         model.addAttribute("lecturers", lectureRepository.findAll());
+        addCommonAttributes(session, model);
         return "admin/edit-course";
     }
 
@@ -110,6 +126,7 @@ public class AdminController {
     public String listLecturers(HttpSession session, Model model) {
         if (!isAdmin(session)) return "redirect:/admin-login";
         model.addAttribute("lecturers", lectureRepository.findAll());
+        addCommonAttributes(session, model);
         return "admin/lectures";
     }
 
@@ -118,6 +135,7 @@ public class AdminController {
         if (!isAdmin(session)) return "redirect:/admin-login";
         model.addAttribute("lecturer", new Lecture());
         model.addAttribute("departments", departmentRepository.findAll());
+        addCommonAttributes(session, model);
         return "admin/add-lecture";
     }
 
@@ -139,13 +157,16 @@ public class AdminController {
     }
 
     // ─────────────── DEPARTMENTS ───────────────
+    // OOP Concept: Polymorphism - calling interface method implemented at runtime
     @GetMapping("/departments")
     public String listDepts(HttpSession session, Model model) {
         if (!isAdmin(session)) return "redirect:/admin-login";
         model.addAttribute("departments", departmentRepository.findAll());
+        addCommonAttributes(session, model);
         return "admin/departments";
     }
 
+    // OOP Concept: Object Instantiation - creating a new Department object
     @PostMapping("/departments/add")
     public String addDept(@RequestParam String deptName,
                           @RequestParam String deptCode,
@@ -170,23 +191,19 @@ public class AdminController {
     public String listStudents(HttpSession session, Model model) {
         if (!isAdmin(session)) return "redirect:/admin-login";
         model.addAttribute("students", studentService.getAllStudents());
+        addCommonAttributes(session, model);
         return "admin/students";
     }
 
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //////////////////////////////// LECTURES EDIT METHODS
-    ///
-    // ─────────────── EDIT LECTURER ───────────────
+        // ─────────────── EDIT LECTURER ───────────────
     @GetMapping("/lectures/edit/{id}")
     public String editLecturerForm(@PathVariable Long id, HttpSession session, Model model) {
         if (!isAdmin(session)) return "redirect:/admin-login";
-
         Lecture lecture = lectureRepository.findById(id).orElse(null);
         if (lecture == null) return "redirect:/admin/lectures";
-
         model.addAttribute("lecture", lecture);
         model.addAttribute("departments", departmentRepository.findAll());
+        addCommonAttributes(session, model);
         return "admin/edit-lecture";
     }
 
@@ -199,36 +216,29 @@ public class AdminController {
                                  HttpSession session,
                                  RedirectAttributes ra) {
         if (!isAdmin(session)) return "redirect:/admin-login";
-
         Lecture lecture = lectureRepository.findById(id).orElse(null);
         if (lecture == null) return "redirect:/admin/lectures";
-
         lecture.setLecturerName(lecturerName);
         lecture.setEmail(email);
         lecture.setPhone(phone);
-
         departmentRepository.findById(departmentId).ifPresent(lecture::setDepartment);
         lectureRepository.save(lecture);
-
         ra.addFlashAttribute("success", "Lecturer updated successfully.");
         return "redirect:/admin/lectures";
     }
 
-    // GET: Show edit department form
+    // ─────────────── DEPARTMENTS EDIT ───────────────
     @GetMapping("/departments/edit/{id}")
     public String editDeptForm(@PathVariable Long id, HttpSession session, Model model) {
         if (!isAdmin(session)) return "redirect:/admin-login";
-
         Department dept = departmentRepository.findById(id).orElse(null);
         if (dept == null) return "redirect:/admin/departments";
-
         model.addAttribute("department", dept);
+        addCommonAttributes(session, model);
         return "admin/edit-department";
     }
 
-    /// //////////// EDIT DEPARTMENT BUTTON
-    //////////////// POST: Process department update
-
+    // OOP Concept: Encapsulation - using setter methods to update object state
     @PostMapping("/departments/edit/{id}")
     public String updateDept(@PathVariable Long id,
                              @RequestParam String deptName,
@@ -238,33 +248,28 @@ public class AdminController {
                              HttpSession session,
                              RedirectAttributes ra) {
         if (!isAdmin(session)) return "redirect:/admin-login";
-
         Department dept = departmentRepository.findById(id).orElse(null);
         if (dept == null) return "redirect:/admin/departments";
-
         dept.setDeptName(deptName);
         dept.setDeptCode(deptCode);
         dept.setDescription(description);
         dept.setHeadOfDept(headOfDept);
-
         departmentRepository.save(dept);
         ra.addFlashAttribute("success", "Department updated successfully.");
         return "redirect:/admin/departments";
     }
 
-    ///// MAPPING...TO ADD DEPARTMENT
     @GetMapping("/departments/add")
-    public String addDeptForm(HttpSession session) {
+    public String addDeptForm(HttpSession session, Model model) {
         if (!isAdmin(session)) return "redirect:/admin-login";
-        return "admin/add-department";   // points to templates/admin/add-department.html
+        addCommonAttributes(session, model);
+        return "admin/add-department";
     }
 
-
-    /// // delete student method
+    // ─────────────── STUDENTS EDIT / DELETE ───────────────
     @GetMapping("/students/delete/{username}")
     public String deleteStudent(@PathVariable String username, HttpSession session, RedirectAttributes ra) {
         if (!isAdmin(session)) return "redirect:/admin-login";
-
         boolean deleted = studentService.deleteStudent(username);
         if (deleted) {
             ra.addFlashAttribute("success", "Student '" + username + "' has been removed.");
@@ -274,20 +279,16 @@ public class AdminController {
         return "redirect:/admin/students";
     }
 
-    ////////// EDIT STUDENT METHODS
-    // GET: Show edit student form
     @GetMapping("/students/edit/{username}")
     public String editStudentForm(@PathVariable String username, HttpSession session, Model model) {
         if (!isAdmin(session)) return "redirect:/admin-login";
-
         Student student = studentService.findByUsername(username).orElse(null);
         if (student == null) return "redirect:/admin/students";
-
         model.addAttribute("student", student);
+        addCommonAttributes(session, model);
         return "admin/edit-student";
     }
 
-    // POST: Process student edit
     @PostMapping("/students/edit/{username}")
     public String updateStudent(@PathVariable String username,
                                 @RequestParam String fullName,
@@ -298,16 +299,11 @@ public class AdminController {
                                 HttpSession session,
                                 RedirectAttributes ra) {
         if (!isAdmin(session)) return "redirect:/admin-login";
-
         Student student = studentService.findByUsername(username).orElse(null);
         if (student == null) return "redirect:/admin/students";
-
-        // Update non-sensitive fields
         student.setFullName(fullName);
         student.setEmail(email);
         student.setPhone(phone);
-
-        // Update password only if provided and matching
         if (newPassword != null && !newPassword.trim().isEmpty()) {
             if (!newPassword.equals(confirmPassword)) {
                 ra.addFlashAttribute("error", "Passwords do not match!");

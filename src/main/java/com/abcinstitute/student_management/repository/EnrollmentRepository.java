@@ -1,4 +1,3 @@
-
 package com.abcinstitute.student_management.repository;
 
 import com.abcinstitute.student_management.model.Enrollment;
@@ -12,5 +11,5 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
     List<Enrollment> findByStudentUsername(String username);
     Optional<Enrollment> findByStudentUsernameAndCourseId(String username, Long courseId);
     boolean existsByStudentUsernameAndCourseId(String username, Long courseId);
-
+    void deleteByStudentUsernameAndCourseId(String username, Long courseId);
 }

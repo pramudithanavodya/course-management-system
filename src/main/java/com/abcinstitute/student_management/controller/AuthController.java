@@ -94,6 +94,9 @@ public class AuthController {
         if (adminService.authenticate(username, password)) {
             session.setAttribute("loggedInUser", username);
             session.setAttribute("userType", "ADMIN");
+            // Store role so templates can distinguish SUPER_ADMIN vs ADMIN
+            String role = adminService.getRoleByUsername(username);
+            session.setAttribute("adminRole", role);
             return "redirect:/admin/dashboard";
         } else {
             redirectAttributes.addFlashAttribute("error", "Invalid admin credentials!");
