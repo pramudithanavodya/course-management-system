@@ -1,4 +1,3 @@
-
 package com.abcinstitute.student_management.service;
 
 import com.abcinstitute.student_management.model.Course;
@@ -18,20 +17,17 @@ import java.util.stream.Collectors;
 @Service
 public class EnrollmentService {
 
-    @Autowired
-    private EnrollmentRepository enrollmentRepository;
+    @Autowired private EnrollmentRepository    enrollmentRepository;
+    @Autowired private CourseRepository        courseRepository;
+    @Autowired private EnrollmentLogRepository enrollmentLogRepository;
 
-    @Autowired
-    private CourseRepository courseRepository;
+    // ── FIX 1: inject NotificationService ────────────────────────
+    @Autowired private NotificationService notificationService;
 
-    @Autowired
-    private EnrollmentLogRepository enrollmentLogRepository;
-
-    // Enroll student after validating key
+    // ── CREATE: Enroll student after validating key ───────────────
     public String enrollStudent(String username, Long courseId, String key) {
 
-        if (enrollmentRepository
-                .existsByStudentUsernameAndCourseId(username, courseId)) {
+        if (enrollmentRepository.existsByStudentUsernameAndCourseId(username, courseId)) {
             return "ALREADY_ENROLLED";
         }
 
@@ -41,21 +37,20 @@ public class EnrollmentService {
         Course course = courseOpt.get();
         if (!course.getEnrollmentKey().equals(key)) return "WRONG_KEY";
 
-        // Save enrollment to MySQL
-        Enrollment enrollment = new Enrollment(username, course);
-        enrollmentRepository.save(enrollment);
+        // Save enrollment
+        enrollmentRepository.save(new Enrollment(username, course));
 
-        // Save log to enrollment_logs table (replaces enrollments_backup.txt)
-        EnrollmentLog log = new EnrollmentLog(
-                username,
-                course.getCourseCode(),
-                course.getCourseName()
-        );
-        enrollmentLogRepository.save(log);
+        // Save audit log
+        enrollmentLogRepository.save(new EnrollmentLog(
+                username, course.getCourseCode(), course.getCourseName()));
+
+        // ── FIX 2: notify student they enrolled ──────────────────
+        notificationService.notifyEnrolled(username, course.getCourseName());
 
         return "SUCCESS";
     }
 
+    // ── READ: Get enrolled courses for a student ──────────────────
     public List<Course> getEnrolledCourses(String username) {
         return enrollmentRepository.findByStudentUsername(username)
                 .stream()
@@ -63,17 +58,29 @@ public class EnrollmentService {
                 .collect(Collectors.toList());
     }
 
+    // ── READ: Check if already enrolled ──────────────────────────
     public boolean isEnrolled(String username, Long courseId) {
         return enrollmentRepository
                 .existsByStudentUsernameAndCourseId(username, courseId);
     }
-    // ✅ ADD THIS METHOD at the bottom of EnrollmentService class
+
+    // ── DELETE: Unenroll / drop a course ──────────────────────────
     @Transactional
     public boolean unenrollStudent(String username, Long courseId) {
         if (!enrollmentRepository.existsByStudentUsernameAndCourseId(username, courseId)) {
-            return false; // not enrolled, nothing to delete
+            return false;
         }
+
+        // ── FIX 3: look up course name BEFORE deleting so we can notify ──
+        String courseName = courseRepository.findById(courseId)
+                .map(Course::getCourseName)
+                .orElse("Unknown Course");
+
         enrollmentRepository.deleteByStudentUsernameAndCourseId(username, courseId);
+
+        // ── FIX 4: notify student they unenrolled ────────────────
+        notificationService.notifyUnenrolled(username, courseName);
+
         return true;
     }
 }
