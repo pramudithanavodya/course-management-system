@@ -37,10 +37,16 @@
         @keyframes gradientFlow{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
         .title-shimmer{font-family:'Syne',sans-serif;font-weight:800;font-size:1.85rem;background:linear-gradient(90deg,#fff 0%,#ffb3c1 35%,#e94560 60%,#fff 100%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:gradientFlow 4s ease infinite}
 
-        /* ══ Add button ═══════════════════════════════════════════ */
+        /* ══ Buttons ══════════════════════════════════════════════ */
         @keyframes btnShimmer{0%{background-position:-200% center}100%{background-position:200% center}}
         .btn-add{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(90deg,#c62a47,#e94560,#ff6b84,#e94560,#c62a47);background-size:300% auto;animation:btnShimmer 3s linear infinite;color:#fff;border:none;border-radius:12px;padding:10px 22px;font-family:'Syne',sans-serif;font-weight:700;font-size:.85rem;text-decoration:none;transition:transform .2s,box-shadow .2s}
         .btn-add:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(233,69,96,.5)}
+
+        .btn-edit{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:9px;text-decoration:none;font-size:.75rem;background:rgba(245,158,11,.12);color:#f59e0b;border:1px solid rgba(245,158,11,.25);transition:transform .2s,box-shadow .2s}
+        .btn-edit:hover{background:rgba(245,158,11,.25);transform:scale(1.15);box-shadow:0 4px 14px rgba(245,158,11,.3)}
+
+        .btn-del{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:9px;text-decoration:none;font-size:.75rem;background:rgba(233,69,96,.12);color:#e94560;border:1px solid rgba(233,69,96,.25);transition:transform .2s,box-shadow .2s}
+        .btn-del:hover{background:rgba(233,69,96,.25);transform:scale(1.15);box-shadow:0 4px 14px rgba(233,69,96,.35)}
 
         /* ══ Success alert ════════════════════════════════════════ */
         .alert-ok{background:rgba(46,204,113,.08);border:1px solid rgba(46,204,113,.25);border-radius:12px;padding:12px 16px;color:rgba(255,255,255,.7);font-size:.83rem;margin-bottom:20px}
@@ -54,7 +60,6 @@
         thead tr{background:linear-gradient(90deg,rgba(233,69,96,.12),rgba(15,52,96,.3));border-bottom:1px solid rgba(255,255,255,.08)}
         thead th{font-family:'Syne',sans-serif;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.4);padding:14px 18px;white-space:nowrap}
 
-        /* ══ Table rows ═══════════════════════════════════════════ */
         @keyframes rowSlide{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
         tbody tr{border-bottom:1px solid rgba(255,255,255,.04);transition:background .2s,transform .2s;animation:rowSlide .45s ease both}
         tbody tr:last-child{border-bottom:none}
@@ -105,6 +110,32 @@
         @keyframes pillPulse{0%,100%{box-shadow:0 0 0 rgba(233,69,96,0)}50%{box-shadow:0 0 14px rgba(233,69,96,.3)}}
         .user-pill{animation:pillPulse 3s ease-in-out infinite}
 
+        /* ══ Modal ════════════════════════════════════════════════ */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+            display: flex; align-items: center; justify-content: center; z-index: 50;
+            visibility: hidden; opacity: 0; transition: visibility .2s, opacity .2s;
+        }
+        .modal-overlay.active { visibility: visible; opacity: 1; }
+        .modal-box {
+            background: rgba(26,26,46,0.95); backdrop-filter: blur(20px);
+            border: 1px solid rgba(233,69,96,.2); border-radius: 20px;
+            padding: 28px; max-width: 420px; width: 90%; text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+        }
+        .modal-box i { font-size: 2.5rem; color: #e94560; margin-bottom: 12px; }
+        .modal-box p { color: rgba(255,255,255,.6); font-size: .85rem; margin: 12px 0 20px; line-height: 1.5; }
+        .modal-box .student-highlight { color: #fff; font-weight: 700; font-family: 'Syne', sans-serif; }
+        .modal-actions { display: flex; justify-content: center; gap: 12px; }
+        .btn-cancel, .btn-confirm {
+            padding: 8px 20px; border-radius: 10px; font-family: 'Syne', sans-serif;
+            font-weight: 700; font-size: .8rem; text-decoration: none; transition: all .2s;
+        }
+        .btn-cancel { background: rgba(255,255,255,.06); color: #fff; border: 1px solid rgba(255,255,255,.1); cursor: pointer; }
+        .btn-cancel:hover { background: rgba(255,255,255,.1); }
+        .btn-confirm { background: linear-gradient(135deg, #c62a47, #e94560); color: #fff; border: none; }
+        .btn-confirm:hover { box-shadow: 0 8px 20px rgba(233,69,96,.5); }
+
         @media(max-width:768px){.sidebar{display:none}.main-wrap{margin-left:0!important}}
     </style>
 </head>
@@ -144,7 +175,7 @@
                     <p class="text-white text-sm font-semibold font-display">Administrator</p>
                     <div class="flex items-center gap-1.5">
                         <span class="w-1.5 h-1.5 rounded-full bg-green-400 live-dot"></span>
-                        <p class="text-white/35 text-xs">Super Admin</p>
+                        <p class="text-white/35 text-xs" th:text="${adminRole == 'SUPER_ADMIN'} ? 'Super Admin' : 'General Admin'">Super Admin</p>
                     </div>
                 </div>
             </div>
@@ -157,6 +188,7 @@
             <a href="/admin/lectures"    class="nav-link"><i class="fas fa-chalkboard-teacher"></i>Lecturers</a>
             <a href="/admin/departments" class="nav-link"><i class="fas fa-building"></i>Departments</a>
             <a href="/admin/students"    class="nav-link active"><i class="fas fa-users"></i>Students</a>
+            <a href="/admin/admins"      class="nav-link" th:if="${adminRole == 'SUPER_ADMIN'}"><i class="fas fa-user-shield"></i>Admins</a>
         </nav>
 
         <div class="anim d4">
@@ -201,36 +233,46 @@
                     <th>Username</th>
                     <th>Email</th>
                     <th>Phone</th>
+                    <th style="text-align:right">Action</th>
                 </tr>
                 </thead>
                 <tbody id="studentTable">
 
                 <tr th:each="student, stat : ${students}">
-                    <!-- # -->
                     <td><span class="row-num" th:text="${stat.count}">1</span></td>
-                    <!-- Name -->
                     <td><span class="student-name" th:text="${student.fullName}">Name</span></td>
-                    <!-- Username -->
                     <td><span class="badge-username" th:text="${student.username}">USER</span></td>
-                    <!-- Email -->
                     <td>
-              <span class="flex items-center gap-1.5 text-white/70 text-xs">
-                <i class="fas fa-envelope" style="color:rgba(233,69,96,.5);width:14px"></i>
-                <span th:text="${student.email}">email@example.com</span>
-              </span>
+                        <span class="flex items-center gap-1.5 text-white/70 text-xs">
+                            <i class="fas fa-envelope" style="color:rgba(233,69,96,.5);width:14px"></i>
+                            <span th:text="${student.email}">email@example.com</span>
+                        </span>
                     </td>
-                    <!-- Phone -->
                     <td>
-              <span class="flex items-center gap-1.5 text-white/70 text-xs">
-                <i class="fas fa-phone" style="color:rgba(233,69,96,.5);width:14px"></i>
-                <span th:text="${student.phone}">+1 234 5678</span>
-              </span>
+                        <span class="flex items-center gap-1.5 text-white/70 text-xs">
+                            <i class="fas fa-phone" style="color:rgba(233,69,96,.5);width:14px"></i>
+                            <span th:text="${student.phone}">+1 234 5678</span>
+                        </span>
+                    </td>
+                    <!-- SINGLE action column with Edit + Delete -->
+                    <td style="text-align:right">
+                        <div class="flex items-center justify-end gap-2">
+                            <a th:href="@{/admin/students/edit/{username}(username=${student.username})}"
+                               class="btn-edit" title="Edit student">
+                                <i class="fas fa-pen"></i>
+                            </a>
+                            <button type="button" class="btn-del"
+                                    th:attr="onclick='openDeleteModal(\'' + ${student.username} + '\', \'' + ${student.fullName} + '\')'"
+                                    title="Delete student">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
                     </td>
                 </tr>
 
                 <!-- Empty state -->
                 <tr th:if="${students.isEmpty()}">
-                    <td colspan="5">
+                    <td colspan="6">
                         <div class="empty-state">
                             <i class="fas fa-graduation-cap"></i>
                             <p class="font-display text-sm">No students registered yet</p>
@@ -245,12 +287,47 @@
     </main>
 </div>
 
+<!-- ══ Delete Confirmation Modal ═══════════════════════════════════ -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal-box">
+        <i class="fas fa-exclamation-triangle"></i>
+        <p>
+            Are you sure you want to remove<br>
+            <span class="student-highlight" id="modalStudentName"></span><br>
+            from ABC Institute?<br>
+            <span style="color:rgba(233,69,96,.8); font-size:.75rem;">This process cannot be undone.</span>
+        </p>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeDeleteModal()">Cancel</button>
+            <a href="#" class="btn-confirm" id="confirmDeleteBtn">Yes, Delete</a>
+        </div>
+    </div>
+</div>
+
 <script>
-    // Fill count chip
-    const rows = document.querySelectorAll('#studentTable tr:not(.empty-row)');
-    const count = [...rows].filter(r => r.querySelector('.student-name')).length;
-    const chip = document.getElementById('studentCount');
-    if (chip) chip.textContent = count + (count === 1 ? ' student' : ' students');
+    // Count students
+    (function() {
+        const rows = document.querySelectorAll('#studentTable tr:not(.empty-row)');
+        const count = [...rows].filter(r => r.querySelector('.student-name')).length;
+        const chip = document.getElementById('studentCount');
+        if (chip) chip.textContent = count + (count === 1 ? ' student' : ' students');
+    })();
+
+    // Modal functions
+    function openDeleteModal(username, fullName) {
+        document.getElementById('modalStudentName').textContent = fullName;
+        document.getElementById('confirmDeleteBtn').href = '/admin/students/delete/' + username;
+        document.getElementById('deleteModal').classList.add('active');
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').classList.remove('active');
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) closeDeleteModal();
+    });
 </script>
 
 </body>

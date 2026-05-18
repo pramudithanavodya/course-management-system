@@ -8,6 +8,36 @@
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <script>tailwind.config={theme:{extend:{colors:{crimson:'#e94560',navy:'#0f3460',mid:'#1a1a2e',deep:'#0d0b1a'},fontFamily:{display:['Syne','sans-serif'],body:['DM Sans','sans-serif']}}}}</script>
     <style>
+        /* ══ Modal ════════════════════════════════════════════ */
+.modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center; z-index: 50;
+    visibility: hidden; opacity: 0; transition: visibility .2s, opacity .2s;
+}
+.modal-overlay.active { visibility: visible; opacity: 1; }
+.modal-box {
+    background: rgba(26,26,46,0.95); backdrop-filter: blur(20px);
+    border: 1px solid rgba(233,69,96,.2); border-radius: 20px;
+    padding: 28px; max-width: 420px; width: 90%; text-align: center;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+}
+.modal-box i { font-size: 2.5rem; color: #e94560; margin-bottom: 12px; }
+.modal-box p { color: rgba(255,255,255,.6); font-size: .85rem; margin: 12px 0 20px; line-height: 1.5; }
+.modal-box .course-highlight { color: #fff; font-weight: 700; font-family: 'Syne', sans-serif; }
+.modal-actions { display: flex; justify-content: center; gap: 12px; }
+.btn-cancel, .btn-confirm {
+    padding: 8px 20px; border-radius: 10px; font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: .8rem; text-decoration: none; transition: all .2s;
+}
+.btn-cancel { background: rgba(255,255,255,.06); color: #fff; border: 1px solid rgba(255,255,255,.1); cursor: pointer; }
+.btn-cancel:hover { background: rgba(255,255,255,.1); }
+.btn-confirm { background: linear-gradient(135deg, #c62a47, #e94560); color: #fff; border: none; }
+.btn-confirm:hover { box-shadow: 0 8px 20px rgba(233,69,96,.5); }
+
+
+
+
+
         *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
         html,body{min-height:100%;font-family:'DM Sans',sans-serif;background:#0d0b1a;color:#fff;}
 
@@ -160,7 +190,7 @@
                     <p class="text-white text-sm font-semibold font-display">Administrator</p>
                     <div class="flex items-center gap-1.5">
                         <span class="w-1.5 h-1.5 rounded-full bg-green-400 live-dot"></span>
-                        <p class="text-white/35 text-xs">Super Admin</p>
+                        <p class="text-white/35 text-xs" th:text="${adminRole == 'SUPER_ADMIN'} ? 'Super Admin' : 'General Admin'">Super Admin</p>
                     </div>
                 </div>
             </div>
@@ -173,6 +203,7 @@
             <a href="/admin/lectures"    class="nav-link"><i class="fas fa-chalkboard-teacher"></i>Lecturers</a>
             <a href="/admin/departments" class="nav-link"><i class="fas fa-building"></i>Departments</a>
             <a href="/admin/students"    class="nav-link"><i class="fas fa-users"></i>Students</a>
+            <a href="/admin/admins"      class="nav-link" th:if="${adminRole == 'SUPER_ADMIN'}"><i class="fas fa-user-shield"></i>Admins</a>
         </nav>
 
         <div class="anim d4">
@@ -255,11 +286,11 @@
                             <a th:href="@{/admin/courses/edit/{id}(id=${course.id})}" class="btn-edit" title="Edit">
                                 <i class="fas fa-pen"></i>
                             </a>
-                            <a th:href="@{/admin/courses/delete/{id}(id=${course.id})}"
-                               onclick="return confirm('Delete this course? This cannot be undone.')"
-                               class="btn-del" title="Delete">
+                            <button type="button" class="btn-del"
+                                    th:attr="onclick='openDeleteModal(\'' + ${course.id} + '\', \'' + ${course.courseName} + '\')'"
+                                    title="Delete course">
                                 <i class="fas fa-trash"></i>
-                            </a>
+                            </button>
                         </div>
                     </td>
                 </tr>
@@ -288,6 +319,39 @@
     const chip = document.getElementById('courseCount');
     if (chip) chip.textContent = count + (count === 1 ? ' course' : ' courses');
 </script>
+<!-- ══ Delete Confirmation Modal ═══════════════════════════════════ -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal-box">
+        <i class="fas fa-exclamation-triangle"></i>
+        <p>
+            Are you sure you want to remove<br>
+            <span class="course-highlight" id="modalCourseName"></span><br>
+            Course adfrom ABC Institute?<br>
+            <span style="color:rgba(233,69,96,.8); font-size:.75rem;">This process cannot be undone.</span>
+        </p>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeDeleteModal()">Cancel</button>
+            <a href="#" class="btn-confirm" id="confirmDeleteBtn">Yes, Delete</a>
+        </div>
+    </div>
+</div>
 
+<script>
+    // Modal functions
+    function openDeleteModal(courseId, courseName) {
+        document.getElementById('modalCourseName').textContent = courseName;
+        document.getElementById('confirmDeleteBtn').href = '/admin/courses/delete/' + courseId;
+        document.getElementById('deleteModal').classList.add('active');
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').classList.remove('active');
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('deleteModal').addEventListener('click', function(e) {
+        if (e.target === this) closeDeleteModal();
+    });
+</script>
 </body>
 </html>

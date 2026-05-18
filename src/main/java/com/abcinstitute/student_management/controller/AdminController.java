@@ -157,6 +157,7 @@ public class AdminController {
     }
 
     // ─────────────── DEPARTMENTS ───────────────
+    // OOP Concept: Polymorphism - calling interface method implemented at runtime
     @GetMapping("/departments")
     public String listDepts(HttpSession session, Model model) {
         if (!isAdmin(session)) return "redirect:/admin-login";
@@ -165,6 +166,7 @@ public class AdminController {
         return "admin/departments";
     }
 
+    // OOP Concept: Object Instantiation - creating a new Department object
     @PostMapping("/departments/add")
     public String addDept(@RequestParam String deptName,
                           @RequestParam String deptCode,
@@ -236,6 +238,7 @@ public class AdminController {
         return "admin/edit-department";
     }
 
+    // OOP Concept: Encapsulation - using setter methods to update object state
     @PostMapping("/departments/edit/{id}")
     public String updateDept(@PathVariable Long id,
                              @RequestParam String deptName,
