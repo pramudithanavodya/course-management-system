@@ -157,9 +157,7 @@ public class AdminController {
     }
 
     // ─────────────── DEPARTMENTS ───────────────
-    // OOP CONCEPT: POLYMORPHISM (Programming to an Interface)
-    // Here, departmentRepository is declared as an interface type. At runtime, the application uses
-    // polymorphism to execute the Spring Data JPA implementation of findAll().
+    // OOP Concept: Polymorphism - calling interface method implemented at runtime
     @GetMapping("/departments")
     public String listDepts(HttpSession session, Model model) {
         if (!isAdmin(session)) return "redirect:/admin-login";
@@ -168,8 +166,7 @@ public class AdminController {
         return "admin/departments";
     }
 
-    // OOP CONCEPT: OBJECT INSTANTIATION
-    // Creating a concrete instance (object) of the 'Department' class using its overloaded constructor.
+    // OOP Concept: Object Instantiation - creating a new Department object
     @PostMapping("/departments/add")
     public String addDept(@RequestParam String deptName,
                           @RequestParam String deptCode,
@@ -241,9 +238,7 @@ public class AdminController {
         return "admin/edit-department";
     }
 
-    // OOP CONCEPT: ENCAPSULATION
-    // Modifying the object's properties using public setter methods instead of accessing
-    // the private fields directly, adhering to the principle of Encapsulation (data hiding).
+    // OOP Concept: Encapsulation - using setter methods to update object state
     @PostMapping("/departments/edit/{id}")
     public String updateDept(@PathVariable Long id,
                              @RequestParam String deptName,
