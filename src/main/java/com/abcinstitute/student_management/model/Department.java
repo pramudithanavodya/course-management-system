@@ -1,90 +1,62 @@
+
 package com.abcinstitute.student_management.model;
 
 import jakarta.persistence.*;
 import java.util.List;
 
-// OOP Concept: Abstraction - representing a real-world course blueprint
+// OOP Concept: Abstraction - representing a real-world department blueprint
 @Entity
-@Table(name = "courses")
-public class Course {
+@Table(name = "departments")
+public class Department {
 
-    // OOP Concept: Encapsulation - private fields protect data
+    // OOP Concept: Encapsulation - private fields protect data from direct access
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "course_name", nullable = false)
-    private String courseName;
+    @Column(name = "dept_name", nullable = false)
+    private String deptName;
 
-    @Column(name = "course_code", nullable = false, unique = true)
-    private String courseCode;
+    @Column(name = "dept_code", nullable = false, unique = true)
+    private String deptCode;
 
-    private int credits;
+    private String description;
 
-    private String lecturer;
+    @Column(name = "head_of_dept")
+    private String headOfDept;
 
-    // OOP Concept: Association - many courses belong to one department
-    @ManyToOne
-    @JoinColumn(name = "department_id")
-    private Department department;
+    // OOP Concept: Association - department is linked to multiple courses
+    @OneToMany(mappedBy = "department", cascade = CascadeType.ALL)
+    private List<Course> courses;
 
     // OOP Concept: Polymorphism - constructor overloading
-    public Course() {}
+    public Department() {}
 
-    public Course(String courseName, String courseCode, int credits, String lecturer) {
-        this.courseName = courseName;
-        this.courseCode = courseCode;
-        this.credits = credits;
-        this.lecturer = lecturer;
+    public Department(String deptName, String deptCode, String description, String headOfDept) {
+        this.deptName = deptName;
+        this.deptCode = deptCode;
+        this.description = description;
+        this.headOfDept = headOfDept;
     }
 
-    // OOP Concept: Encapsulation - getters and setters
+    // OOP Concept: Encapsulation - getters and setters to access private fields
 
-    public Long getId() {
-        return id;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public String getDeptName() { return deptName; }
+    public void setDeptName(String deptName) { this.deptName = deptName; }
 
-    public String getCourseName() {
-        return courseName;
-    }
+    public String getDeptCode() { return deptCode; }
+    public void setDeptCode(String deptCode) { this.deptCode = deptCode; }
 
-    public void setCourseName(String courseName) {
-        this.courseName = courseName;
-    }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 
-    public String getCourseCode() {
-        return courseCode;
-    }
+    public String getHeadOfDept() { return headOfDept; }
+    public void setHeadOfDept(String headOfDept) { this.headOfDept = headOfDept; }
 
-    public void setCourseCode(String courseCode) {
-        this.courseCode = courseCode;
-    }
+    public List<Course> getCourses() { return courses; }
+    public void setCourses(List<Course> courses) { this.courses = courses; }
 
-    public int getCredits() {
-        return credits;
-    }
-
-    public void setCredits(int credits) {
-        this.credits = credits;
-    }
-
-    public String getLecturer() {
-        return lecturer;
-    }
-
-    public void setLecturer(String lecturer) {
-        this.lecturer = lecturer;
-    }
-
-    public Department getDepartment() {
-        return department;
-    }
-
-    public void setDepartment(Department department) {
-        this.department = department;
-    }
 }
