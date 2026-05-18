@@ -30,7 +30,14 @@ public class Admin {
         this.username = username;
         this.password = password;
         this.email = email;
-        this.role     = role;
+        this.role = "ADMIN";
+    }
+
+    public Admin(String username, String password, String email, String role) {
+        this.username = username;
+        this.password = password;
+        this.email = email;
+        this.role = role;
     }
 
     // Getters and Setters
